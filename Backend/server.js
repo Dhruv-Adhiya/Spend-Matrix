@@ -5,7 +5,6 @@ const pool = require("./config/db");
 const app = express();
 const PORT = 5000;
 
-// Test DB connection when server starts
 pool.query("SELECT NOW()", (err, res) => {
   if (err) {
     console.error("DB connection failed", err);
@@ -14,7 +13,6 @@ pool.query("SELECT NOW()", (err, res) => {
   }
 });
 
-// Create a test route
 app.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
@@ -24,7 +22,6 @@ app.get("/", async (req, res) => {
   }
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
