@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require("express");
 const pool = require("./config/db");
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 app.use(express.json());
@@ -16,6 +18,7 @@ pool.query("SELECT NOW()", (err, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 app.get("/", async (req, res) => {
   try {
@@ -26,12 +29,8 @@ app.get("/", async (req, res) => {
   }
 });
 
+app.use(errorHandler);
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-
-const authMiddleware = require('./middleware/authMiddleware');
-
-app.get('/api/test', authMiddleware, (req, res) => {
-  res.json({ message: "Protected route working", user: req.user });
 });
