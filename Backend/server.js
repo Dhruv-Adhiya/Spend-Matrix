@@ -4,6 +4,7 @@ const pool = require("./config/db");
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -14,13 +15,14 @@ pool.query("SELECT NOW()", (err, res) => {
   if (err) {
     console.error("DB connection failed", err);
   } else {
-    console.log("DB connected:", res.rows[0]);
+    console.log("DB connected👍✌️:", res.rows[0]);
   }
 });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 app.get("/", async (req, res) => {
   try {
