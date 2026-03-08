@@ -7,7 +7,9 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const budgetRoutes = require('./routes/budgetRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const recurringRoutes = require('./routes/recurringRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const { startRecurringJob } = require('./jobs/recurringJob');
 
 const app = express();
 app.use(express.json());
@@ -27,6 +29,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/recurring', recurringRoutes);
 
 app.get("/", async (req, res) => {
   try {
@@ -41,4 +44,5 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  startRecurringJob();
 });
