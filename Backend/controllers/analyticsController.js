@@ -1,9 +1,31 @@
 const pool = require('../config/db');
 
+// GET /api/analytics/payment-source-breakdown
+exports.getPaymentSourceBreakdown = async (req, res, next) => {
+  try {
+    const result = await pool.query(
+      `SELECT payment_source, SUM(amount) AS total
+       FROM transactions
+       WHERE type='expense' AND user_id=$1
+       GROUP BY payment_source`,
+      [req.user.id]
+    );
+
+    const data = {};
+    result.rows.forEach(row => {
+      data[row.payment_source] = parseFloat(row.total);
+    });
+
+    res.json({ success: true, message: 'Payment source breakdown retrieved successfully', data });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // GET /api/analytics/monthly-summary?month=6&year=2025
 exports.getMonthlySummary = async (req, res, next) => {
   try {
-    const { month, year } = req.query;
+    const { month, year, payment_source } = req.query;
 
     if (!month || !year) {
       return res.status(400).json({
@@ -40,6 +62,13 @@ exports.getMonthlySummary = async (req, res, next) => {
       });
     }
 
+    const params = [req.user.id, monthNum, yearNum];
+    let psFilter = '';
+    if (payment_source) {
+      params.push(payment_source);
+      psFilter = `AND payment_source = $${params.length}`;
+    }
+
     const result = await pool.query(
       `SELECT
         SUM(CASE WHEN type='income' THEN amount ELSE 0 END) AS total_income,
@@ -47,8 +76,9 @@ exports.getMonthlySummary = async (req, res, next) => {
       FROM transactions
       WHERE user_id = $1
       AND EXTRACT(MONTH FROM transaction_date) = $2
-      AND EXTRACT(YEAR FROM transaction_date) = $3`,
-      [req.user.id, monthNum, yearNum]
+      AND EXTRACT(YEAR FROM transaction_date) = $3
+      ${psFilter}`,
+      params
     );
 
     const totalIncome = parseFloat(result.rows[0].total_income) || 0;
@@ -74,7 +104,7 @@ exports.getMonthlySummary = async (req, res, next) => {
 // GET /api/analytics/category-breakdown?month=6&year=2025
 exports.getCategoryBreakdown = async (req, res, next) => {
   try {
-    const { month, year } = req.query;
+    const { month, year, payment_source } = req.query;
 
     if (!month || !year) {
       return res.status(400).json({
@@ -111,6 +141,13 @@ exports.getCategoryBreakdown = async (req, res, next) => {
       });
     }
 
+    const params = [req.user.id, monthNum, yearNum];
+    let psFilter = '';
+    if (payment_source) {
+      params.push(payment_source);
+      psFilter = `AND t.payment_source = $${params.length}`;
+    }
+
     const result = await pool.query(
       `SELECT
         c.id AS category_id,
@@ -122,9 +159,10 @@ exports.getCategoryBreakdown = async (req, res, next) => {
       AND t.type = 'expense'
       AND EXTRACT(MONTH FROM t.transaction_date) = $2
       AND EXTRACT(YEAR FROM t.transaction_date) = $3
+      ${psFilter}
       GROUP BY c.id, c.name
       ORDER BY total_spent DESC`,
-      [req.user.id, monthNum, yearNum]
+      params
     );
 
     const breakdown = result.rows.map(row => ({
@@ -234,7 +272,7 @@ exports.getBudgetVsActual = async (req, res, next) => {
 // GET /api/analytics/daily-expense?month=6&year=2025
 exports.getDailyExpense = async (req, res, next) => {
   try {
-    const { month, year } = req.query;
+    const { month, year, payment_source } = req.query;
 
     if (!month || !year) {
       return res.status(400).json({
@@ -271,6 +309,13 @@ exports.getDailyExpense = async (req, res, next) => {
       });
     }
 
+    const params = [req.user.id, monthNum, yearNum];
+    let psFilter = '';
+    if (payment_source) {
+      params.push(payment_source);
+      psFilter = `AND payment_source = $${params.length}`;
+    }
+
     const result = await pool.query(
       `SELECT
         transaction_date,
@@ -280,9 +325,10 @@ exports.getDailyExpense = async (req, res, next) => {
       AND type = 'expense'
       AND EXTRACT(MONTH FROM transaction_date) = $2
       AND EXTRACT(YEAR FROM transaction_date) = $3
+      ${psFilter}
       GROUP BY transaction_date
       ORDER BY transaction_date`,
-      [req.user.id, monthNum, yearNum]
+      params
     );
 
     const dailyExpenses = result.rows.map(row => ({

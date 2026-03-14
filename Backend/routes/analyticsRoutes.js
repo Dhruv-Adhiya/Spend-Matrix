@@ -7,5 +7,6 @@ router.get('/monthly-summary', authMiddleware, analyticsController.getMonthlySum
 router.get('/category-breakdown', authMiddleware, analyticsController.getCategoryBreakdown);
 router.get('/budget-vs-actual', authMiddleware, analyticsController.getBudgetVsActual);
 router.get('/daily-expense', authMiddleware, analyticsController.getDailyExpense);
+router.get('/payment-source-breakdown', authMiddleware, analyticsController.getPaymentSourceBreakdown);
 
 module.exports = router;
