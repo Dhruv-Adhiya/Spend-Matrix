@@ -13,7 +13,7 @@ exports.createRecurring = async (req, res, next) => {
       });
     }
 
-    const { category_id, type, amount, description, frequency, start_date, end_date } = req.body;
+    const { category_id, type, amount, description, frequency, start_date, end_date, payment_source } = req.body;
     const userId = req.user.id;
 
     // Verify category ownership
@@ -33,10 +33,10 @@ exports.createRecurring = async (req, res, next) => {
     // Insert recurring rule
     const result = await pool.query(
       `INSERT INTO recurring_transactions 
-      (user_id, category_id, type, amount, description, frequency, start_date, end_date, next_run_date) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $7) 
+      (user_id, category_id, type, amount, description, frequency, start_date, end_date, next_run_date, payment_source) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $7, $9) 
       RETURNING *`,
-      [userId, category_id, type, amount, description, frequency, start_date, end_date]
+      [userId, category_id, type, amount, description, frequency, start_date, end_date, payment_source ?? 'online']
     );
 
     res.status(201).json({
@@ -63,7 +63,7 @@ exports.getRecurring = async (req, res, next) => {
 
     const result = await pool.query(
       `SELECT id, category_id, type, amount, description, frequency, start_date, end_date, 
-      next_run_date, last_run_date, is_active 
+      next_run_date, last_run_date, is_active, payment_source 
       FROM recurring_transactions 
       WHERE user_id = $1 
       ORDER BY created_at DESC`,
@@ -94,7 +94,7 @@ exports.updateRecurring = async (req, res, next) => {
 
     const recurringId = req.params.id;
     const userId = req.user.id;
-    const { amount, description, frequency, end_date, is_active } = req.body;
+    const { amount, description, frequency, end_date, is_active, payment_source } = req.body;
 
     // Ownership check
     const recurringCheck = await pool.query(
@@ -138,6 +138,11 @@ exports.updateRecurring = async (req, res, next) => {
     if (is_active !== undefined) {
       updates.push(`is_active = $${paramCount++}`);
       values.push(is_active);
+    }
+
+    if (payment_source !== undefined) {
+      updates.push(`payment_source = $${paramCount++}`);
+      values.push(payment_source);
     }
 
     if (updates.length === 0) {

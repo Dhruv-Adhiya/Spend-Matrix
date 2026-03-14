@@ -18,7 +18,8 @@ const createValidation = [
         throw new Error('end_date must be >= start_date');
       }
       return true;
-    })
+    }),
+  body('payment_source').optional().isIn(['cash', 'online', 'credit_card']).withMessage('payment_source must be cash, online, or credit_card')
 ];
 
 const updateValidation = [
@@ -27,7 +28,8 @@ const updateValidation = [
   body('description').optional().isString(),
   body('frequency').optional().isIn(['daily', 'weekly', 'monthly', 'yearly']).withMessage('Invalid frequency'),
   body('end_date').optional({ nullable: true }).isDate().withMessage('Valid end_date required'),
-  body('is_active').optional().isBoolean().withMessage('is_active must be boolean')
+  body('is_active').optional().isBoolean().withMessage('is_active must be boolean'),
+  body('payment_source').optional().isIn(['cash', 'online', 'credit_card']).withMessage('payment_source must be cash, online, or credit_card')
 ];
 
 const deleteValidation = [
