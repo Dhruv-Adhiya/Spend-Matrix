@@ -17,7 +17,10 @@ const createValidation = [
     .trim()
     .isLength({ max: 500 }).withMessage('Description too long'),
   body('transaction_date')
-    .isDate().withMessage('Valid transaction_date is required')
+    .isDate().withMessage('Valid transaction_date is required'),
+  body('payment_source')
+    .optional()
+    .isIn(['cash', 'online', 'credit_card']).withMessage('payment_source must be cash, online, or credit_card')
 ];
 
 const updateValidation = [
@@ -38,7 +41,10 @@ const updateValidation = [
     .isLength({ max: 500 }).withMessage('Description too long'),
   body('transaction_date')
     .optional()
-    .isDate().withMessage('Valid transaction_date is required')
+    .isDate().withMessage('Valid transaction_date is required'),
+  body('payment_source')
+    .optional()
+    .isIn(['cash', 'online', 'credit_card']).withMessage('payment_source must be cash, online, or credit_card')
 ];
 
 const deleteValidation = [

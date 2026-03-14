@@ -13,7 +13,7 @@ exports.createTransaction = async (req, res, next) => {
       });
     }
 
-    const { category_id, type, amount, description, transaction_date } = req.body;
+    const { category_id, type, amount, description, transaction_date, payment_source = 'online' } = req.body;
     const userId = req.user.id;
 
     // Step 1: Verify category ownership
@@ -41,8 +41,8 @@ exports.createTransaction = async (req, res, next) => {
 
     // Step 3: Insert transaction
     const result = await pool.query(
-      'INSERT INTO transactions (user_id, category_id, type, amount, description, transaction_date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [userId, category_id, type, amount, description || null, transaction_date]
+      'INSERT INTO transactions (user_id, category_id, type, amount, description, transaction_date, payment_source) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [userId, category_id, type, amount, description || null, transaction_date, payment_source]
     );
 
     res.status(201).json({
@@ -192,7 +192,7 @@ exports.updateTransaction = async (req, res, next) => {
 
     const transactionId = req.params.id;
     const userId = req.user.id;
-    const { category_id, type, amount, description, transaction_date } = req.body;
+    const { category_id, type, amount, description, transaction_date, payment_source } = req.body;
 
     // Ownership check
     const transactionCheck = await pool.query(
@@ -279,6 +279,11 @@ exports.updateTransaction = async (req, res, next) => {
     if (transaction_date) {
       updates.push(`transaction_date = $${paramCount++}`);
       values.push(transaction_date);
+    }
+
+    if (payment_source !== undefined) {
+      updates.push(`payment_source = $${paramCount++}`);
+      values.push(payment_source);
     }
 
     if (updates.length === 0) {
