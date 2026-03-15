@@ -8,6 +8,7 @@ const transactionRoutes = require('./routes/transactionRoutes');
 const budgetRoutes = require('./routes/budgetRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const recurringRoutes = require('./routes/recurringRoutes');
+const cronRoutes = require('./routes/cronRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const { startRecurringJob } = require('./jobs/recurringJob');
 
@@ -30,6 +31,7 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/recurring', recurringRoutes);
+app.use('/api/cron', cronRoutes);
 
 app.get("/", async (req, res) => {
   try {
