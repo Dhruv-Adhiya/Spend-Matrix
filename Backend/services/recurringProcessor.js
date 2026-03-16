@@ -1,51 +1,94 @@
 const pool = require('../config/db');
 
-const frequencyIntervalMap = {
-  daily: '1 day',
-  weekly: '7 days',
-  monthly: '1 month',
-  yearly: '1 year',
+const getNextRunDate = (currentDate, frequency) => {
+  const date = new Date(currentDate);
+  switch (frequency) {
+    case 'daily':   date.setDate(date.getDate() + 1); break;
+    case 'weekly':  date.setDate(date.getDate() + 7); break;
+    case 'monthly': date.setMonth(date.getMonth() + 1); break;
+    case 'yearly':  date.setFullYear(date.getFullYear() + 1); break;
+    default: throw new Error(`Invalid frequency: ${frequency}`);
+  }
+  return date;
 };
+
+// Returns YYYY-MM-DD string from a Date object (timezone-safe)
+const toDateString = (date) => date.toISOString().split('T')[0];
 
 const processRecurring = async () => {
   const client = await pool.connect();
   let processed = 0;
 
   try {
+    await client.query('BEGIN');
+
+    // Fetch due rules with row locking — skips rows locked by concurrent requests
     const { rows: rules } = await client.query(
       `SELECT * FROM recurring_transactions
        WHERE next_run_date <= CURRENT_DATE
        AND is_active = TRUE
-       AND (end_date IS NULL OR end_date >= CURRENT_DATE)`
+       AND (end_date IS NULL OR end_date >= CURRENT_DATE)
+       FOR UPDATE SKIP LOCKED`
     );
 
     for (const rule of rules) {
-      const interval = frequencyIntervalMap[rule.frequency];
-      if (!interval) continue;
-
-      await client.query('BEGIN');
       try {
-        await client.query(
-          `INSERT INTO transactions
-           (user_id, category_id, type, amount, description, transaction_date, payment_source)
-           VALUES ($1, $2, $3, $4, $5, CURRENT_DATE, $6)`,
-          [rule.user_id, rule.category_id, rule.type, rule.amount, rule.description, rule.payment_source]
-        );
+        // Timezone-safe: get today's date as YYYY-MM-DD
+        const todayStr = toDateString(new Date());
+        const today = new Date(todayStr);
 
-        await client.query(
-          `UPDATE recurring_transactions
-           SET last_run_date = CURRENT_DATE,
-               next_run_date = CURRENT_DATE + INTERVAL '${interval}'
-           WHERE id = $1`,
-          [rule.id]
-        );
+        let runDate = new Date(toDateString(new Date(rule.next_run_date)));
 
-        await client.query('COMMIT');
+        // Catch-up logic: process all missed runs up to today
+        while (runDate <= today) {
+          const endDate = rule.end_date ? new Date(toDateString(new Date(rule.end_date))) : null;
+
+          // Stop if this run date is past the end_date
+          if (endDate && runDate > endDate) break;
+
+          const runDateStr = toDateString(runDate);
+
+          await client.query(
+            `INSERT INTO transactions
+             (user_id, category_id, type, amount, description, transaction_date, payment_source)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            [
+              rule.user_id,
+              rule.category_id,
+              rule.type,
+              rule.amount,
+              rule.description,
+              runDateStr,
+              rule.payment_source,
+            ]
+          );
+
+          const nextDate = getNextRunDate(runDate, rule.frequency);
+
+          await client.query(
+            `UPDATE recurring_transactions
+             SET last_run_date = $1,
+                 next_run_date = $2
+             WHERE id = $3`,
+            [runDateStr, toDateString(nextDate), rule.id]
+          );
+
+          runDate = nextDate;
+        }
+
         processed++;
-      } catch {
-        await client.query('ROLLBACK');
+      } catch (ruleError) {
+        // Log per-rule error but continue processing other rules
+        console.error(`Error processing recurring rule ID ${rule.id}:`, ruleError.message);
+        throw ruleError; // Re-throw to trigger outer ROLLBACK
       }
     }
+
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Recurring processor error, transaction rolled back:', error.message);
+    throw error;
   } finally {
     client.release();
   }
