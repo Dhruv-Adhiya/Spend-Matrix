@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 const { validationResult } = require('express-validator');
+const transactionService = require('../services/transactionService');
 
 // Create Transaction
 exports.createTransaction = async (req, res, next) => {
@@ -306,6 +307,26 @@ exports.updateTransaction = async (req, res, next) => {
       message: 'Transaction updated successfully',
       data: result.rows[0]
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Search & Filter Transactions
+exports.searchTransactions = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, message: 'Validation failed', data: errors.array() });
+    }
+
+    const { startDate, endDate } = req.query;
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      return res.status(400).json({ success: false, message: 'startDate cannot be after endDate', data: null });
+    }
+
+    const result = await transactionService.searchTransactions(req.user.id, req.query);
+    res.status(200).json({ success: true, message: 'Transactions fetched', data: result });
   } catch (error) {
     next(error);
   }

@@ -79,8 +79,23 @@ const getValidation = [
     .isIn(['asc', 'desc']).withMessage('Sort must be asc or desc')
 ];
 
+const searchValidation = [
+  query('search').optional().trim().isLength({ max: 200 }).withMessage('Search too long'),
+  query('category_id').optional().isInt({ min: 1 }).withMessage('Invalid category_id'),
+  query('type').optional().isIn(['income', 'expense']).withMessage('Type must be income or expense'),
+  query('startDate').optional().isDate().withMessage('Invalid startDate'),
+  query('endDate').optional().isDate().withMessage('Invalid endDate'),
+  query('minAmount').optional().isFloat({ min: 0.01 }).withMessage('Invalid minAmount'),
+  query('maxAmount').optional().isFloat({ min: 0.01 }).withMessage('Invalid maxAmount'),
+  query('sortBy').optional().isIn(['date', 'amount']).withMessage('sortBy must be date or amount'),
+  query('order').optional().isIn(['asc', 'desc']).withMessage('order must be asc or desc'),
+  query('page').optional().isInt({ min: 1 }).withMessage('Invalid page'),
+  query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('Limit must be between 1 and 50'),
+];
+
 // Routes
 router.post('/', authMiddleware, createValidation, transactionController.createTransaction);
+router.get('/search', authMiddleware, searchValidation, transactionController.searchTransactions);
 router.get('/', authMiddleware, getValidation, transactionController.getTransactions);
 router.put('/:id', authMiddleware, updateValidation, transactionController.updateTransaction);
 router.delete('/:id', authMiddleware, deleteValidation, transactionController.deleteTransaction);
