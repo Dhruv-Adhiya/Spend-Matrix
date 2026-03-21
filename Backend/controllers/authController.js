@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
+const { createDefaultSettings } = require('../services/settingsService');
 
 const register = async (req, res) => {
   try {
@@ -25,6 +26,8 @@ const register = async (req, res) => {
       'INSERT INTO users (full_name, email, password) VALUES ($1, $2, $3) RETURNING id, full_name, email, created_at',
       [full_name, email, hashedPassword]
     );
+
+    await createDefaultSettings(newUser.rows[0].id);
 
     res.status(201).json({
       message: 'User registered successfully',

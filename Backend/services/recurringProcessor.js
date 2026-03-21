@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { getSettings } = require('./settingsService');
 
 const getNextRunDate = (currentDate, frequency) => {
   const date = new Date(currentDate);
@@ -33,8 +34,10 @@ const processRecurring = async () => {
 
     for (const rule of rules) {
       try {
-        // Timezone-safe: get today's date as YYYY-MM-DD
-        const todayStr = toDateString(new Date());
+        // Get user's timezone from settings for accurate "today" calculation
+        const userSettings = await getSettings(rule.user_id);
+        const tz = userSettings.timezone || 'UTC';
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
         const today = new Date(todayStr);
 
         let runDate = new Date(toDateString(new Date(rule.next_run_date)));

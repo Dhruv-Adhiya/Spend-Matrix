@@ -1,7 +1,11 @@
 const pool = require('../config/db');
+const { getSettings } = require('./settingsService');
 
 const createNotification = async ({ user_id, title, message, type, metadata = null, unique_key = null }) => {
   try {
+    const settings = await getSettings(user_id);
+    if (!settings.notification_enabled) return;
+
     await pool.query(
       `INSERT INTO notifications (user_id, title, message, type, metadata, unique_key)
        VALUES ($1, $2, $3, $4, $5, $6)
@@ -100,9 +104,11 @@ const notifyUpcomingRecurring = (userId, rule) => {
   });
 };
 
-const notifyBudgetAlert = (userId, { category_id, category_name, budget, spent, month, year }) => {
+const notifyBudgetAlert = async (userId, { category_id, category_name, budget, spent, month, year }) => {
+  const settings = await getSettings(userId);
+  const threshold = settings.budget_alert_threshold;
   const pct = budget > 0 ? Math.round((spent / budget) * 100) : 0;
-  if (pct < 80) return Promise.resolve();
+  if (pct < threshold) return Promise.resolve();
 
   const exceeded = pct >= 100;
   const title = exceeded ? 'Budget Exceeded' : 'Budget Alert';
