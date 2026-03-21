@@ -11,6 +11,7 @@ const recurringRoutes = require('./routes/recurringRoutes');
 const cronRoutes = require('./routes/cronRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const exportRoutes = require('./routes/exportRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const { startRecurringJob } = require('./jobs/recurringJob');
 
@@ -36,6 +37,7 @@ app.use('/api/recurring', recurringRoutes);
 app.use('/api/cron', cronRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/export', exportRoutes);
 
 app.get("/", async (req, res) => {
   try {
