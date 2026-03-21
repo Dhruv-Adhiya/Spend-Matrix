@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const { validationResult } = require('express-validator');
 const transactionService = require('../services/transactionService');
+const { notifyTransactionCreated } = require('../services/notificationService');
 
 // Create Transaction
 exports.createTransaction = async (req, res, next) => {
@@ -19,7 +20,7 @@ exports.createTransaction = async (req, res, next) => {
 
     // Step 1: Verify category ownership
     const categoryCheck = await pool.query(
-      'SELECT type FROM categories WHERE id = $1 AND user_id = $2',
+      'SELECT type, name FROM categories WHERE id = $1 AND user_id = $2',
       [category_id, userId]
     );
 
@@ -46,10 +47,13 @@ exports.createTransaction = async (req, res, next) => {
       [userId, category_id, type, amount, description || null, transaction_date, payment_source]
     );
 
+    const transaction = result.rows[0];
+    notifyTransactionCreated(userId, { ...transaction, category_name: categoryCheck.rows[0].name || category_id });
+
     res.status(201).json({
       success: true,
       message: 'Transaction created successfully',
-      data: result.rows[0]
+      data: transaction
     });
   } catch (error) {
     next(error);

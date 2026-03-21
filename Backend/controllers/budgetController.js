@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 const { validationResult } = require('express-validator');
+const { notifyBudgetAlert } = require('../services/notificationService');
 
 // CREATE OR UPDATE BUDGET (UPSERT)
 exports.createOrUpdateBudget = async (req, res, next) => {
@@ -49,10 +50,31 @@ exports.createOrUpdateBudget = async (req, res, next) => {
       [user_id, category_id, amount, month, year]
     );
 
+    const budget = budgetResult.rows[0];
+
+    // Check current spending and fire budget alert if needed
+    const spendResult = await pool.query(
+      `SELECT COALESCE(SUM(amount), 0) AS spent
+       FROM transactions
+       WHERE user_id = $1 AND category_id = $2 AND type = 'expense'
+         AND EXTRACT(MONTH FROM transaction_date) = $3
+         AND EXTRACT(YEAR FROM transaction_date) = $4`,
+      [user_id, category_id, month, year]
+    );
+    const spent = parseFloat(spendResult.rows[0].spent);
+    notifyBudgetAlert(user_id, {
+      category_id,
+      category_name: categoryResult.rows[0].name,
+      budget: parseFloat(budget.amount),
+      spent,
+      month,
+      year,
+    });
+
     res.status(200).json({
       success: true,
       message: 'Budget created/updated successfully',
-      data: budgetResult.rows[0]
+      data: budget
     });
   } catch (error) {
     next(error);

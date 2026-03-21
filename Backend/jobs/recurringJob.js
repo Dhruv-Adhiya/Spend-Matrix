@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const pool = require('../config/db');
+const { notifyRecurringExecuted, notifyUpcomingRecurring } = require('../services/notificationService');
 
 const processRecurringTransactions = async () => {
   const client = await pool.connect();
@@ -59,6 +60,7 @@ const processRecurringTransactions = async () => {
         );
 
         await client.query('COMMIT');
+        notifyRecurringExecuted(rule.user_id, rule, new Date().toISOString().split('T')[0]);
         console.log(`Processed recurring rule ID: ${rule.id}`);
       } catch (error) {
         await client.query('ROLLBACK');
@@ -67,6 +69,22 @@ const processRecurringTransactions = async () => {
     }
 
     console.log('Recurring transactions job completed');
+
+    // Upcoming recurring reminders: rules due tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+    const { rows: upcomingRules } = await client.query(
+      `SELECT * FROM recurring_transactions
+       WHERE next_run_date = $1 AND is_active = TRUE
+         AND (end_date IS NULL OR end_date >= $1)`,
+      [tomorrowStr]
+    );
+
+    for (const rule of upcomingRules) {
+      notifyUpcomingRecurring(rule.user_id, rule);
+    }
   } catch (error) {
     console.error('Error in recurring transactions job:', error.message);
   } finally {
