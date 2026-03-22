@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 const { createDefaultSettings } = require('../services/settingsService');
+const { forgotPassword, resetPassword } = require('../services/authService');
 
 const register = async (req, res) => {
   try {
@@ -74,4 +75,35 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const forgotPasswordHandler = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    await forgotPassword(email);
+    res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+const resetPasswordHandler = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password are required' });
+    if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+    await resetPassword(token, newPassword);
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    if (error.message === 'INVALID_TOKEN' || error.message === 'TOKEN_USED') {
+      return res.status(400).json({ error: 'Invalid or already used reset token' });
+    }
+    if (error.message === 'TOKEN_EXPIRED') {
+      return res.status(400).json({ error: 'Reset token has expired' });
+    }
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { register, login, forgotPasswordHandler, resetPasswordHandler };
