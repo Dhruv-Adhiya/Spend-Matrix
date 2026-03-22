@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 const { createDefaultSettings } = require('../services/settingsService');
 const { forgotPassword, resetPassword } = require('../services/authService');
+const { sendWelcomeEmail } = require('../services/emailService');
+const { checkAndHandleDevice } = require('../services/deviceService');
 
 const register = async (req, res) => {
   try {
@@ -29,6 +31,12 @@ const register = async (req, res) => {
     );
 
     await createDefaultSettings(newUser.rows[0].id);
+
+    try {
+      await sendWelcomeEmail(email, full_name);
+    } catch (err) {
+      console.error('Welcome email failed:', err.message);
+    }
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -64,6 +72,14 @@ const login = async (req, res) => {
     );
 
     const { password: _, ...userWithoutPassword } = user.rows[0];
+
+    const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    // Fire-and-forget — must not block login
+    checkAndHandleDevice(user.rows[0].id, user.rows[0].email, userAgent, ip).catch(
+      (err) => console.error('Device check failed:', err.message)
+    );
 
     res.status(200).json({
       message: 'Login successful',
