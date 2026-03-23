@@ -5,44 +5,57 @@ const { createDefaultSettings } = require('../services/settingsService');
 const { forgotPassword, resetPassword } = require('../services/authService');
 const { sendWelcomeEmail } = require('../services/emailService');
 const { checkAndHandleDevice } = require('../services/deviceService');
+const { insertAuditLog } = require('../services/adminService');
+
+const createUser = async (full_name, email, password, role) => {
+  if (!full_name || !email || !password) throw new Error('All fields are required');
+  if (password.length < 6) throw new Error('Password must be at least 6 characters');
+
+  const userExists = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+  if (userExists.rows.length > 0) throw new Error('User already exists');
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const newUser = await pool.query(
+    'INSERT INTO users (full_name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, full_name, email, role, created_at',
+    [full_name, email, hashedPassword, role]
+  );
+
+  await createDefaultSettings(newUser.rows[0].id);
+
+  try {
+    await sendWelcomeEmail(email, full_name);
+  } catch (err) {
+    console.error('Welcome email failed:', err.message);
+  }
+
+  return newUser.rows[0];
+};
 
 const register = async (req, res) => {
   try {
     const { full_name, email, password } = req.body;
-
-    if (!full_name || !email || !password) {
-      return res.status(400).json({ error: 'All fields are required' });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    }
-
-    const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (userExists.rows.length > 0) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await pool.query(
-      'INSERT INTO users (full_name, email, password) VALUES ($1, $2, $3) RETURNING id, full_name, email, created_at',
-      [full_name, email, hashedPassword]
-    );
-
-    await createDefaultSettings(newUser.rows[0].id);
-
-    try {
-      await sendWelcomeEmail(email, full_name);
-    } catch (err) {
-      console.error('Welcome email failed:', err.message);
-    }
-
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: newUser.rows[0]
-    });
+    const user = await createUser(full_name, email, password, 'user');
+    res.status(201).json({ message: 'User registered successfully', user });
   } catch (error) {
+    const clientErrors = ['All fields are required', 'Password must be at least 6 characters', 'User already exists'];
+    if (clientErrors.includes(error.message)) return res.status(400).json({ error: error.message });
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+const registerAdmin = async (req, res) => {
+  try {
+    const secret = req.headers['x-admin-secret'];
+    if (!secret || secret !== process.env.ADMIN_REGISTRATION_SECRET)
+      return res.status(403).json({ error: 'Invalid admin secret' });
+
+    const { full_name, email, password } = req.body;
+    const user = await createUser(full_name, email, password, 'admin');
+    res.status(201).json({ message: 'Admin registered successfully', user });
+  } catch (error) {
+    const clientErrors = ['All fields are required', 'Password must be at least 6 characters', 'User already exists'];
+    if (clientErrors.includes(error.message)) return res.status(400).json({ error: error.message });
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -65,8 +78,12 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    if (user.rows[0].is_blocked) {
+      return res.status(403).json({ error: 'Your account has been blocked. Contact support.' });
+    }
+
     const token = jwt.sign(
-      { id: user.rows[0].id, email: user.rows[0].email },
+      { id: user.rows[0].id, email: user.rows[0].email, role: user.rows[0].role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -80,6 +97,8 @@ const login = async (req, res) => {
     checkAndHandleDevice(user.rows[0].id, user.rows[0].email, userAgent, ip).catch(
       (err) => console.error('Device check failed:', err.message)
     );
+
+    insertAuditLog({ user_id: user.rows[0].id, action: 'LOGIN', ip_address: ip });
 
     res.status(200).json({
       message: 'Login successful',
@@ -122,4 +141,4 @@ const resetPasswordHandler = async (req, res) => {
   }
 };
 
-module.exports = { register, login, forgotPasswordHandler, resetPasswordHandler };
+module.exports = { register, registerAdmin, login, forgotPasswordHandler, resetPasswordHandler };
