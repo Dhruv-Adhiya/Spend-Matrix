@@ -2,8 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 const { createDefaultSettings } = require('../services/settingsService');
-const { forgotPassword, resetPassword } = require('../services/authService');
-const { sendWelcomeEmail } = require('../services/emailService');
+const { forgotPassword, resetPassword, createVerificationToken, verifyEmailToken } = require('../services/authService');
+const { sendWelcomeEmail, sendVerificationEmail } = require('../services/emailService');
 const { checkAndHandleDevice } = require('../services/deviceService');
 const { insertAuditLog } = require('../services/adminService');
 
@@ -22,6 +22,13 @@ const createUser = async (full_name, email, password, role) => {
   );
 
   await createDefaultSettings(newUser.rows[0].id);
+
+  try {
+    const verificationToken = await createVerificationToken(newUser.rows[0].id);
+    await sendVerificationEmail(email, verificationToken);
+  } catch (err) {
+    console.error('Verification email failed:', err.message);
+  }
 
   try {
     await sendWelcomeEmail(email, full_name);
@@ -76,6 +83,10 @@ const login = async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.rows[0].password);
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    if (!user.rows[0].is_verified) {
+      return res.status(403).json({ error: 'Please verify your email before logging in.' });
     }
 
     if (user.rows[0].is_blocked) {
@@ -141,4 +152,17 @@ const resetPasswordHandler = async (req, res) => {
   }
 };
 
-module.exports = { register, registerAdmin, login, forgotPasswordHandler, resetPasswordHandler };
+const verifyEmailHandler = async (req, res) => {
+  try {
+    const { token } = req.query;
+    await verifyEmailToken(token);
+    res.status(200).json({ message: 'Email verified successfully. You can now log in.' });
+  } catch (error) {
+    if (error.message === 'INVALID_TOKEN') return res.status(400).json({ error: 'Invalid verification token.' });
+    if (error.message === 'TOKEN_EXPIRED') return res.status(400).json({ error: 'Verification token has expired. Please register again.' });
+    if (error.message === 'ALREADY_VERIFIED') return res.status(400).json({ error: 'Email is already verified.' });
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { register, registerAdmin, login, forgotPasswordHandler, resetPasswordHandler, verifyEmailHandler };

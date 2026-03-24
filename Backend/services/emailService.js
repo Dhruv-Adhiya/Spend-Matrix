@@ -131,4 +131,32 @@ const sendLoginAlertEmail = async (toEmail, { ip, userAgent, time }) => {
   });
 };
 
-module.exports = { sendPasswordResetEmail, sendWelcomeEmail, sendLoginAlertEmail };
+const sendVerificationEmail = async (toEmail, token) => {
+  const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial; background:#f4f4f4; padding:20px;">
+  <div style="max-width:500px; margin:auto; background:white; padding:20px; border-radius:8px;">
+    <h2>Verify Your Email</h2>
+    <p>Thank you for registering with Spend-Matrix. Please verify your email address to activate your account.</p>
+    <a href="${verifyLink}"
+       style="display:inline-block; padding:10px 20px; background:#4CAF50; color:white; text-decoration:none; border-radius:5px;">
+       Verify Email
+    </a>
+    <p style="margin-top:20px;">This link expires in 24 hours.</p>
+    <p>If you didn't create an account, ignore this email.</p>
+  </div>
+</body>
+</html>`;
+
+  await transporter.sendMail({
+    from: `"Spend Matrix" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    subject: 'Verify your Spend-Matrix email',
+    html,
+  });
+};
+
+module.exports = { sendPasswordResetEmail, sendWelcomeEmail, sendLoginAlertEmail, sendVerificationEmail };
