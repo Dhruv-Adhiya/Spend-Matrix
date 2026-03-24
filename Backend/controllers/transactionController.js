@@ -2,6 +2,9 @@ const pool = require('../config/db');
 const { validationResult } = require('express-validator');
 const transactionService = require('../services/transactionService');
 const { notifyTransactionCreated } = require('../services/notificationService');
+const { insertAuditLog } = require('../services/adminService');
+
+const getIp = (req) => req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
 
 // Create Transaction
 exports.createTransaction = async (req, res, next) => {
@@ -49,6 +52,7 @@ exports.createTransaction = async (req, res, next) => {
 
     const transaction = result.rows[0];
     notifyTransactionCreated(userId, { ...transaction, category_name: categoryCheck.rows[0].name || category_id });
+    insertAuditLog({ user_id: userId, action: 'TRANSACTION_CREATED', entity_type: 'transaction', entity_id: transaction.id, metadata: { type, amount }, ip_address: getIp(req) });
 
     res.status(201).json({
       success: true,
@@ -363,6 +367,8 @@ exports.deleteTransaction = async (req, res, next) => {
         data: null
       });
     }
+
+    insertAuditLog({ user_id: userId, action: 'TRANSACTION_DELETED', entity_type: 'transaction', entity_id: transactionId, metadata: { type: result.rows[0].type, amount: result.rows[0].amount }, ip_address: getIp(req) });
 
     res.status(200).json({
       success: true,

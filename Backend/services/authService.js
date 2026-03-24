@@ -50,8 +50,8 @@ const resetPassword = async (token, newPassword) => {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
   await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, record.user_id]);
-
   await pool.query('UPDATE password_reset_tokens SET used = true WHERE token = $1', [token]);
+  return record.user_id;
 };
 
 const createVerificationToken = async (userId) => {

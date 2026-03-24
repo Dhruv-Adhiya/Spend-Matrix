@@ -43,6 +43,8 @@ const register = async (req, res) => {
   try {
     const { full_name, email, password } = req.body;
     const user = await createUser(full_name, email, password, 'user');
+    const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
+    insertAuditLog({ user_id: user.id, action: 'REGISTER', ip_address: ip });
     res.status(201).json({ message: 'User registered successfully', user });
   } catch (error) {
     const clientErrors = ['All fields are required', 'Password must be at least 6 characters', 'User already exists'];
@@ -139,7 +141,9 @@ const resetPasswordHandler = async (req, res) => {
     if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password are required' });
     if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
-    await resetPassword(token, newPassword);
+    const userId = await resetPassword(token, newPassword);
+    const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
+    insertAuditLog({ user_id: userId, action: 'PASSWORD_RESET', ip_address: ip });
     res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {
     if (error.message === 'INVALID_TOKEN' || error.message === 'TOKEN_USED') {

@@ -93,28 +93,34 @@ const getDashboardStats = async () => {
   };
 };
 
-const getAuditLogs = async ({ user_id, action, from, to, page = 1, limit = 20 }) => {
-  const parsedLimit = Math.min(parseInt(limit) || 20, 100);
+const getAuditLogs = async ({ user_id, action, startDate, endDate, page = 1, limit = 10 }) => {
+  const parsedLimit = Math.min(parseInt(limit) || 10, 100);
   const parsedPage = Math.max(parseInt(page) || 1, 1);
   const offset = (parsedPage - 1) * parsedLimit;
+
+  if (user_id && isNaN(parseInt(user_id))) throw Object.assign(new Error('Invalid user_id'), { status: 400 });
+  if (startDate && isNaN(Date.parse(startDate))) throw Object.assign(new Error('Invalid startDate'), { status: 400 });
+  if (endDate && isNaN(Date.parse(endDate))) throw Object.assign(new Error('Invalid endDate'), { status: 400 });
+  if (startDate && endDate && new Date(startDate) > new Date(endDate))
+    throw Object.assign(new Error('startDate cannot be after endDate'), { status: 400 });
 
   const conditions = [];
   const params = [];
 
   if (user_id) {
-    params.push(user_id);
+    params.push(parseInt(user_id));
     conditions.push(`a.user_id = $${params.length}`);
   }
   if (action) {
     params.push(action.toUpperCase());
     conditions.push(`a.action = $${params.length}`);
   }
-  if (from) {
-    params.push(from);
+  if (startDate) {
+    params.push(startDate);
     conditions.push(`a.created_at >= $${params.length}`);
   }
-  if (to) {
-    params.push(to);
+  if (endDate) {
+    params.push(endDate);
     conditions.push(`a.created_at <= $${params.length}`);
   }
 
@@ -136,8 +142,10 @@ const getAuditLogs = async ({ user_id, action, from, to, page = 1, limit = 20 })
 
   const total = parseInt(countResult.rows[0].count);
   return {
-    data: dataResult.rows,
-    pagination: { total, page: parsedPage, limit: parsedLimit, totalPages: Math.ceil(total / parsedLimit) },
+    logs: dataResult.rows,
+    total,
+    page: parsedPage,
+    limit: parsedLimit,
   };
 };
 
