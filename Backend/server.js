@@ -15,10 +15,12 @@ const exportRoutes = require('./routes/exportRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const { globalLimiter, authLimiter, adminLimiter } = require('./middleware/rateLimiter');
 const { startRecurringJob } = require('./jobs/recurringJob');
 
 const app = express();
 app.use(express.json());
+app.use(globalLimiter);
 const PORT = 5000;
 
 pool.query("SELECT NOW()", (err, res) => {
@@ -29,6 +31,9 @@ pool.query("SELECT NOW()", (err, res) => {
   }
 });
 
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
+app.use('/api/auth/reset-password', authLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -41,7 +46,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/settings', settingsRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminLimiter, adminRoutes);
 
 app.get("/", async (req, res) => {
   try {
