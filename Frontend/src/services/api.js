@@ -25,4 +25,8 @@ export const authAPI = {
   login: (data) => api.post('/auth/login', data),
 };
 
+export const dashboardAPI = {
+  getData: () => api.get('/dashboard/summary'),
+};
+
 export default api;
