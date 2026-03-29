@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard' },
+  { to: '/transactions', label: 'Transactions' },
 ];
 
 export default function MainLayout({ children }) {

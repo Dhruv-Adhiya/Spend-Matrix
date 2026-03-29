@@ -29,4 +29,11 @@ export const dashboardAPI = {
   getData: () => api.get('/dashboard/summary'),
 };
 
+export const transactionAPI = {
+  create: (data) => api.post('/transactions', data),
+  getAll: (params) => api.get('/transactions', { params }),
+  update: (id, data) => api.put(`/transactions/${id}`, data),
+  remove: (id) => api.delete(`/transactions/${id}`),
+};
+
 export default api;
