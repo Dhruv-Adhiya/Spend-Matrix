@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { createCategory } from '../services/categoryService';
 
 export default function CategoryModal({ onClose, onCreated, defaultType }) {
@@ -28,8 +29,8 @@ export default function CategoryModal({ onClose, onCreated, defaultType }) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6">
         <h2 className="text-base font-semibold text-gray-800 mb-4">New Category</h2>
 
@@ -79,6 +80,7 @@ export default function CategoryModal({ onClose, onCreated, defaultType }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

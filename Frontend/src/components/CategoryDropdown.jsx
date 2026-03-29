@@ -51,6 +51,7 @@ export default function CategoryDropdown({ value, onChange, type }) {
           onChange={(e) => {
             if (e.target.value === '__add__') {
               setShowModal(true);
+              e.target.value = value; // reset select to previous value
             } else {
               onChange(e.target.value);
             }
