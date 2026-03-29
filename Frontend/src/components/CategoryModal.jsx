@@ -18,9 +18,11 @@ export default function CategoryModal({ onClose, onCreated, defaultType }) {
       onClose();
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to create category.';
-      setError(msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('unique')
-        ? 'A category with this name already exists.'
-        : msg);
+      setError(
+        msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('duplicate')
+          ? 'A category with this name already exists.'
+          : msg
+      );
     } finally {
       setLoading(false);
     }
