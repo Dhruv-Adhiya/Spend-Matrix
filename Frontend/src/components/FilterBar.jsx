@@ -3,7 +3,7 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-const PAYMENT_SOURCES = ['cash', 'card', 'upi', 'bank_transfer', 'other'];
+const PAYMENT_SOURCES = ['cash', 'online', 'credit_card'];
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - i);
