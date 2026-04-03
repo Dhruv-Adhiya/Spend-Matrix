@@ -100,6 +100,8 @@ exports.getBudgets = async (req, res, next) => {
       `SELECT
         b.id AS budget_id,
         b.category_id,
+        b.month,
+        b.year,
         c.name AS category_name,
         b.amount AS budget_amount,
         COALESCE(SUM(t.amount), 0) AS spent_amount
@@ -114,7 +116,7 @@ exports.getBudgets = async (req, res, next) => {
       WHERE b.user_id = $1
         AND b.month = $2
         AND b.year = $3
-      GROUP BY b.id, c.name
+      GROUP BY b.id, b.month, b.year, c.name
       ORDER BY c.name`,
       [user_id, month, year]
     );
@@ -130,6 +132,8 @@ exports.getBudgets = async (req, res, next) => {
         id: row.budget_id,
         category_id: row.category_id,
         category_name: row.category_name,
+        month: parseInt(row.month),
+        year: parseInt(row.year),
         budget,
         spent,
         remaining,

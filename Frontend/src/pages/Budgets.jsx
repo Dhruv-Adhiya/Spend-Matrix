@@ -7,8 +7,18 @@ const now = new Date();
 
 const EMPTY = { category_id: '', amount: '', month: now.getMonth() + 1, year: now.getFullYear() };
 
-function BudgetModal({ onClose, onSaved }) {
-  const [form, setForm] = useState(EMPTY);
+const MONTH_NAMES = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December',
+];
+
+function BudgetModal({ initial, onClose, onSaved }) {
+  const isEdit = !!initial;
+  const [form, setForm] = useState(
+    isEdit
+      ? { category_id: String(initial.category_id), amount: String(initial.budget), month: initial.month, year: initial.year }
+      : EMPTY
+  );
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -43,16 +53,11 @@ function BudgetModal({ onClose, onSaved }) {
     }
   };
 
-  const months = [
-    'January','February','March','April','May','June',
-    'July','August','September','October','November','December',
-  ];
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-gray-800">Set Budget</h2>
+          <h2 className="text-base font-semibold text-gray-800">{isEdit ? 'Edit Budget' : 'Set Budget'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
         </div>
 
@@ -61,13 +66,19 @@ function BudgetModal({ onClose, onSaved }) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="text-xs text-gray-500 mb-1 block">Expense Category</label>
-            <select value={form.category_id} onChange={(e) => set('category_id', e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
-              <option value="">Select category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+            {isEdit ? (
+              <p className="w-full border border-gray-100 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-700">
+                {initial.category_name}
+              </p>
+            ) : (
+              <select value={form.category_id} onChange={(e) => set('category_id', e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                <option value="">Select category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div>
@@ -80,18 +91,30 @@ function BudgetModal({ onClose, onSaved }) {
           <div className="flex gap-3">
             <div className="flex-1">
               <label className="text-xs text-gray-500 mb-1 block">Month</label>
-              <select value={form.month} onChange={(e) => set('month', e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                {months.map((m, i) => (
-                  <option key={i + 1} value={i + 1}>{m}</option>
-                ))}
-              </select>
+              {isEdit ? (
+                <p className="w-full border border-gray-100 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-700">
+                  {MONTH_NAMES[initial.month - 1]}
+                </p>
+              ) : (
+                <select value={form.month} onChange={(e) => set('month', e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                  {MONTH_NAMES.map((m, i) => (
+                    <option key={i + 1} value={i + 1}>{m}</option>
+                  ))}
+                </select>
+              )}
             </div>
             <div className="flex-1">
               <label className="text-xs text-gray-500 mb-1 block">Year</label>
-              <input type="number" min="2000" max="2100" value={form.year}
-                onChange={(e) => set('year', e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+              {isEdit ? (
+                <p className="w-full border border-gray-100 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-700">
+                  {initial.year}
+                </p>
+              ) : (
+                <input type="number" min="2000" max="2100" value={form.year}
+                  onChange={(e) => set('year', e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+              )}
             </div>
           </div>
 
@@ -102,7 +125,7 @@ function BudgetModal({ onClose, onSaved }) {
             </button>
             <button type="submit" disabled={loading}
               className="flex-1 py-2 rounded-lg bg-indigo-600 text-white text-sm hover:bg-indigo-700 transition disabled:opacity-60">
-              {loading ? 'Saving…' : 'Save Budget'}
+              {loading ? 'Saving…' : isEdit ? 'Update Budget' : 'Save Budget'}
             </button>
           </div>
         </form>
@@ -133,6 +156,7 @@ export default function Budgets() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -178,7 +202,7 @@ export default function Budgets() {
           <input type="number" min="2000" max="2100" value={year}
             onChange={(e) => setYear(Number(e.target.value))}
             className="w-24 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
-          <button onClick={() => setShowModal(true)}
+          <button onClick={() => { setEditTarget(null); setShowModal(true); }}
             className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition">
             + Set Budget
           </button>
@@ -229,8 +253,12 @@ export default function Budgets() {
                       <span className="text-xs text-red-500 font-medium">⚠ Over budget</span>
                     )}
                   </div>
-                  <button onClick={() => setDeleteId(b.id)}
-                    className="text-gray-300 hover:text-red-400 text-xs transition">✕</button>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setEditTarget(b); setShowModal(true); }}
+                      className="text-indigo-400 hover:text-indigo-600 text-xs transition">Edit</button>
+                    <button onClick={() => setDeleteId(b.id)}
+                      className="text-gray-300 hover:text-red-400 text-xs transition">✕</button>
+                  </div>
                 </div>
 
                 <ProgressBar pct={b.percentage_used} over={over} />
@@ -252,7 +280,7 @@ export default function Budgets() {
       )}
 
       {showModal && (
-        <BudgetModal onClose={() => setShowModal(false)} onSaved={fetchBudgets} />
+        <BudgetModal initial={editTarget} onClose={() => { setShowModal(false); setEditTarget(null); }} onSaved={fetchBudgets} />
       )}
 
       {deleteId !== null && (
