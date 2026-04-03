@@ -5,6 +5,7 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/transactions', label: 'Transactions' },
   { to: '/categories', label: 'Categories' },
+  { to: '/budgets', label: 'Budgets' },
 ];
 
 export default function MainLayout({ children }) {

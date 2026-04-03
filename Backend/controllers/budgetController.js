@@ -98,7 +98,7 @@ exports.getBudgets = async (req, res, next) => {
 
     const result = await pool.query(
       `SELECT
-        b.id,
+        b.id AS budget_id,
         b.category_id,
         c.name AS category_name,
         b.amount AS budget_amount,
@@ -127,6 +127,7 @@ exports.getBudgets = async (req, res, next) => {
       const percentage_used = budget > 0 ? Math.round((spent / budget) * 100) : 0;
 
       return {
+        id: row.budget_id,
         category_id: row.category_id,
         category_name: row.category_name,
         budget,

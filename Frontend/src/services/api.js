@@ -36,4 +36,11 @@ export const transactionAPI = {
   remove: (id) => api.delete(`/transactions/${id}`),
 };
 
+export const budgetAPI = {
+  getAll: (month, year) => api.get('/budgets', { params: { month, year } }),
+  getSummary: (month, year) => api.get('/budgets/summary', { params: { month, year } }),
+  save: (data) => api.post('/budgets', data),
+  remove: (id) => api.delete(`/budgets/${id}`),
+};
+
 export default api;
