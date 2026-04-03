@@ -197,18 +197,10 @@ exports.getBudgetSummary = async (req, res, next) => {
 
     const result = await pool.query(
       `SELECT
-        SUM(b.amount) AS total_budget,
-        COALESCE(SUM(t.amount), 0) AS total_spent
-      FROM budgets b
-      LEFT JOIN transactions t
-        ON t.category_id = b.category_id
-        AND t.user_id = b.user_id
-        AND t.type = 'expense'
-        AND EXTRACT(MONTH FROM t.transaction_date) = b.month
-        AND EXTRACT(YEAR FROM t.transaction_date) = b.year
-      WHERE b.user_id = $1
-        AND b.month = $2
-        AND b.year = $3`,
+        COALESCE((SELECT SUM(amount) FROM budgets WHERE user_id = $1 AND month = $2 AND year = $3), 0) AS total_budget,
+        COALESCE((SELECT SUM(amount) FROM transactions WHERE user_id = $1 AND type = 'expense'
+          AND EXTRACT(MONTH FROM transaction_date) = $2 AND EXTRACT(YEAR FROM transaction_date) = $3
+          AND category_id IN (SELECT category_id FROM budgets WHERE user_id = $1 AND month = $2 AND year = $3)), 0) AS total_spent`,
       [user_id, month, year]
     );
 
