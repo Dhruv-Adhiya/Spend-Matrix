@@ -9,6 +9,7 @@ const navItems = [
   { to: '/budgets', label: 'Budgets' },
   { to: '/analytics', label: 'Analytics' },
   { to: '/notifications', label: 'Notifications' },
+  { to: '/settings', label: 'Settings' },
 ];
 
 export default function MainLayout({ children }) {
