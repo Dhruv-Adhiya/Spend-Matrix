@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 const { validationResult } = require('express-validator');
 const transactionService = require('../services/transactionService');
-const { notifyTransactionCreated } = require('../services/notificationService');
+const { notifyTransactionCreated, notifyBudgetAlert } = require('../services/notificationService');
 const { insertAuditLog } = require('../services/adminService');
 
 const getIp = (req) => req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
@@ -52,6 +52,40 @@ exports.createTransaction = async (req, res, next) => {
 
     const transaction = result.rows[0];
     notifyTransactionCreated(userId, { ...transaction, category_name: categoryCheck.rows[0].name || category_id });
+
+    // Fire budget alert if this is an expense with an active budget
+    if (type === 'expense') {
+      const txDate = new Date(transaction_date);
+      const txMonth = txDate.getMonth() + 1;
+      const txYear = txDate.getFullYear();
+
+      const budgetCheck = await pool.query(
+        `SELECT b.amount AS budget,
+                COALESCE(SUM(t.amount), 0) AS spent
+         FROM budgets b
+         LEFT JOIN transactions t
+           ON t.user_id = b.user_id
+           AND t.category_id = b.category_id
+           AND t.type = 'expense'
+           AND EXTRACT(MONTH FROM t.transaction_date) = b.month
+           AND EXTRACT(YEAR FROM t.transaction_date) = b.year
+         WHERE b.user_id = $1 AND b.category_id = $2 AND b.month = $3 AND b.year = $4
+         GROUP BY b.amount`,
+        [userId, category_id, txMonth, txYear]
+      );
+
+      if (budgetCheck.rows.length > 0) {
+        notifyBudgetAlert(userId, {
+          category_id,
+          category_name: categoryCheck.rows[0].name,
+          budget: parseFloat(budgetCheck.rows[0].budget),
+          spent: parseFloat(budgetCheck.rows[0].spent),
+          month: txMonth,
+          year: txYear,
+        });
+      }
+    }
+
     insertAuditLog({ user_id: userId, action: 'TRANSACTION_CREATED', entity_type: 'transaction', entity_id: transaction.id, metadata: { type, amount }, ip_address: getIp(req) });
 
     res.status(201).json({
@@ -310,10 +344,50 @@ exports.updateTransaction = async (req, res, next) => {
       values
     );
 
+    const updated = result.rows[0];
+
+    // Fire budget alert if the updated transaction is an expense
+    if (updated.type === 'expense') {
+      const txDate = new Date(updated.transaction_date);
+      const txMonth = txDate.getMonth() + 1;
+      const txYear = txDate.getFullYear();
+
+      const categoryName = await pool.query(
+        'SELECT name FROM categories WHERE id = $1',
+        [updated.category_id]
+      );
+
+      const budgetCheck = await pool.query(
+        `SELECT b.amount AS budget,
+                COALESCE(SUM(t.amount), 0) AS spent
+         FROM budgets b
+         LEFT JOIN transactions t
+           ON t.user_id = b.user_id
+           AND t.category_id = b.category_id
+           AND t.type = 'expense'
+           AND EXTRACT(MONTH FROM t.transaction_date) = b.month
+           AND EXTRACT(YEAR FROM t.transaction_date) = b.year
+         WHERE b.user_id = $1 AND b.category_id = $2 AND b.month = $3 AND b.year = $4
+         GROUP BY b.amount`,
+        [userId, updated.category_id, txMonth, txYear]
+      );
+
+      if (budgetCheck.rows.length > 0) {
+        notifyBudgetAlert(userId, {
+          category_id: updated.category_id,
+          category_name: categoryName.rows[0]?.name ?? updated.category_id,
+          budget: parseFloat(budgetCheck.rows[0].budget),
+          spent: parseFloat(budgetCheck.rows[0].spent),
+          month: txMonth,
+          year: txYear,
+        });
+      }
+    }
+
     res.status(200).json({
       success: true,
       message: 'Transaction updated successfully',
-      data: result.rows[0]
+      data: updated
     });
   } catch (error) {
     next(error);
