@@ -69,6 +69,14 @@ const markAllAsRead = async (userId) => {
   );
 };
 
+const deleteNotification = async (userId, notificationId) => {
+  const result = await pool.query(
+    `DELETE FROM notifications WHERE id = $1 AND user_id = $2 RETURNING id`,
+    [notificationId, userId]
+  );
+  return result.rows.length > 0;
+};
+
 // ── Trigger helpers ──────────────────────────────────────────────
 
 const notifyTransactionCreated = (userId, { id, amount, type, category_name }) => {
@@ -131,6 +139,7 @@ module.exports = {
   getNotifications,
   markAsRead,
   markAllAsRead,
+  deleteNotification,
   notifyTransactionCreated,
   notifyRecurringExecuted,
   notifyUpcomingRecurring,

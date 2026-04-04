@@ -13,6 +13,7 @@ export default function Notifications() {
   const [page, setPage] = useState(1);
   const [markingAll, setMarkingAll] = useState(false);
   const pendingRef = useRef(new Set());
+  const deletingRef = useRef(new Set());
 
   const fetchNotifications = useCallback(async (p = 1) => {
     setLoading(true);
@@ -51,6 +52,25 @@ export default function Notifications() {
       setError('Failed to mark notification as read.');
     } finally {
       pendingRef.current.delete(id);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (deletingRef.current.has(id)) return;
+    deletingRef.current.add(id);
+
+    // Optimistic update
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
+
+    try {
+      await notificationAPI.remove(id);
+    } catch {
+      // Revert on failure — refetch current page
+      await fetchNotifications(page);
+      setError('Failed to delete notification.');
+    } finally {
+      deletingRef.current.delete(id);
     }
   };
 
@@ -112,7 +132,7 @@ export default function Notifications() {
             ))}
           </div>
         ) : (
-          <NotificationList notifications={notifications} onMarkRead={handleMarkRead} />
+          <NotificationList notifications={notifications} onMarkRead={handleMarkRead} onDelete={handleDelete} />
         )}
 
         {/* Pagination */}

@@ -5,11 +5,16 @@ const TYPE_STYLES = {
   UPCOMING_RECURRING: 'bg-purple-100 text-purple-700',
 };
 
-export default function NotificationItem({ notification, onMarkRead }) {
+export default function NotificationItem({ notification, onMarkRead, onDelete }) {
   const { id, title, message, type, is_read, created_at } = notification;
 
   const handleClick = () => {
     if (!is_read) onMarkRead(id);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete(id);
   };
 
   return (
@@ -29,9 +34,21 @@ export default function NotificationItem({ notification, onMarkRead }) {
         <p className="text-sm font-semibold text-gray-800 truncate">{title}</p>
         <p className="text-sm text-gray-500">{message}</p>
       </div>
-      <span className="text-xs text-gray-400 whitespace-nowrap shrink-0 mt-1">
-        {new Date(created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-      </span>
+      <div className="flex items-center gap-2 shrink-0 mt-1">
+        <span className="text-xs text-gray-400 whitespace-nowrap">
+          {new Date(created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+        </span>
+        <button
+          onClick={handleDelete}
+          className="p-1 rounded text-gray-300 hover:text-red-500 hover:bg-red-50 transition"
+          aria-label="Delete notification"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }

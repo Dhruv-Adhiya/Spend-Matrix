@@ -1,6 +1,6 @@
 import NotificationItem from './NotificationItem';
 
-export default function NotificationList({ notifications, onMarkRead }) {
+export default function NotificationList({ notifications, onMarkRead, onDelete }) {
   if (!notifications.length) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-gray-400">
@@ -16,7 +16,7 @@ export default function NotificationList({ notifications, onMarkRead }) {
   return (
     <div className="flex flex-col gap-2">
       {notifications.map((n) => (
-        <NotificationItem key={n.id} notification={n} onMarkRead={onMarkRead} />
+        <NotificationItem key={n.id} notification={n} onMarkRead={onMarkRead} onDelete={onDelete} />
       ))}
     </div>
   );
