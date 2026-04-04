@@ -43,4 +43,10 @@ export const budgetAPI = {
   remove: (id) => api.delete(`/budgets/${id}`),
 };
 
+export const notificationAPI = {
+  getAll: (params) => api.get('/notifications', { params }),
+  markAsRead: (id) => api.patch(`/notifications/${id}/read`),
+  markAllAsRead: () => api.patch('/notifications/read-all'),
+};
+
 export default api;

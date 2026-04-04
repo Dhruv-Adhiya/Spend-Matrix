@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from '../components/NotificationBell';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard' },
@@ -7,6 +8,7 @@ const navItems = [
   { to: '/categories', label: 'Categories' },
   { to: '/budgets', label: 'Budgets' },
   { to: '/analytics', label: 'Analytics' },
+  { to: '/notifications', label: 'Notifications' },
 ];
 
 export default function MainLayout({ children }) {
@@ -25,6 +27,7 @@ export default function MainLayout({ children }) {
         <span className="text-indigo-600 font-bold text-lg">SpendMatrix</span>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-600">{user?.full_name}</span>
+          <NotificationBell />
           <button
             onClick={handleLogout}
             className="text-sm px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
