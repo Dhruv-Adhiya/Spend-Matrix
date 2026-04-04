@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt');
 const pool = require('../config/db');
 const { validationResult } = require('express-validator');
+const { sendPasswordChangedEmail } = require('../services/emailService');
+
+const getIp = (req) => req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
 
 const getProfile = async (req, res, next) => {
   try {
@@ -103,8 +106,18 @@ const changePassword = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
     await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, req.user.id]);
+
+    // Fetch email for notification
+    const userEmail = await pool.query('SELECT email FROM users WHERE id = $1', [req.user.id]);
+    try {
+      await sendPasswordChangedEmail(userEmail.rows[0].email, {
+        ip: getIp(req),
+        time: new Date().toUTCString(),
+      });
+    } catch (err) {
+      console.error('Password change email failed:', err.message);
+    }
 
     res.json({ message: 'Password changed successfully' });
   } catch (error) {

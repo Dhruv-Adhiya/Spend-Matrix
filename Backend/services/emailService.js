@@ -159,4 +159,33 @@ const sendVerificationEmail = async (toEmail, token) => {
   });
 };
 
-module.exports = { sendPasswordResetEmail, sendWelcomeEmail, sendLoginAlertEmail, sendVerificationEmail };
+const sendPasswordChangedEmail = async (toEmail, { ip, time }) => {
+  const html = `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial; background:#f4f4f4; padding:20px;">
+  <div style="max-width:500px; margin:auto; background:white; padding:20px; border-radius:8px;">
+    <h2 style="color:#333;">Password Changed</h2>
+    <p>Your Spend-Matrix account password was successfully changed.</p>
+    <ul>
+      <li>IP Address: ${ip}</li>
+      <li>Time: ${time}</li>
+    </ul>
+    <p style="color:#e53e3e;">If you did not make this change, please reset your password immediately.</p>
+    <a href="${process.env.FRONTEND_URL}/forgot-password"
+       style="display:inline-block; padding:10px 20px; background:#e53e3e; color:white; text-decoration:none; border-radius:5px;">
+       Secure My Account
+    </a>
+  </div>
+</body>
+</html>`;
+
+  await transporter.sendMail({
+    from: `"Spend Matrix" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    subject: 'Your Password Was Changed',
+    html,
+  });
+};
+
+module.exports = { sendPasswordResetEmail, sendWelcomeEmail, sendLoginAlertEmail, sendVerificationEmail, sendPasswordChangedEmail };
