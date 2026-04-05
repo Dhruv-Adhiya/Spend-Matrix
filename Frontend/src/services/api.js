@@ -35,6 +35,7 @@ export const dashboardAPI = {
 export const transactionAPI = {
   create: (data) => api.post('/transactions', data),
   getAll: (params) => api.get('/transactions', { params }),
+  search: (params) => api.get('/transactions/search', { params }),
   update: (id, data) => api.put(`/transactions/${id}`, data),
   remove: (id) => api.delete(`/transactions/${id}`),
 };
