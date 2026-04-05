@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import FilterBar from '../components/FilterBar';
+import AnalyticsFilterBar from '../components/AnalyticsFilterBar';
 import SummaryCard from '../components/SummaryCard';
 import CategoryChart from '../components/CategoryChart';
 import PaymentSourceChart from '../components/PaymentSourceChart';
@@ -64,7 +64,7 @@ export default function Analytics() {
       <div className="space-y-6">
         <h1 className="text-xl font-bold text-gray-800">Analytics</h1>
 
-        <FilterBar filters={filters} onChange={setFilters} />
+        <AnalyticsFilterBar filters={filters} onChange={setFilters} />
 
         {error && (
           <div className="bg-red-50 text-red-600 text-sm rounded-lg px-4 py-3">{error}</div>
