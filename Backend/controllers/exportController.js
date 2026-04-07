@@ -31,7 +31,7 @@ exports.downloadCSV = async (req, res, next) => {
     const error = validateFilters(filters);
     if (error) return res.status(400).json({ error: sanitize(error) });
 
-    const csv = await exportCSV(req.user.id, filters);
+    const csv = await exportCSV(req.user.id, req.user.email, filters);
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=transactions.csv');
     res.send(csv);
@@ -46,7 +46,7 @@ exports.downloadPDF = async (req, res, next) => {
     const error = validateFilters(filters);
     if (error) return res.status(400).json({ error: sanitize(error) });
 
-    const pdfBuffer = await exportPDF(req.user.id, filters);
+    const pdfBuffer = await exportPDF(req.user.id, req.user.email, filters);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=transactions.pdf');
     res.send(pdfBuffer);

@@ -54,14 +54,18 @@ const buildFilterQuery = (userId, filters) => {
   return { query, params };
 };
 
-exports.exportCSV = async (userId, filters) => {
+exports.exportCSV = async (userId, userEmail, filters) => {
   const { query, params } = buildFilterQuery(userId, filters);
   const { rows } = await pool.query(query, params);
-  return generateCSV(rows);
+  const userResult = await pool.query('SELECT full_name FROM users WHERE id = $1', [userId]);
+  const meta = { name: userResult.rows[0]?.full_name || '', email: userEmail, filters };
+  return generateCSV(rows, meta);
 };
 
-exports.exportPDF = async (userId, filters) => {
+exports.exportPDF = async (userId, userEmail, filters) => {
   const { query, params } = buildFilterQuery(userId, filters);
   const { rows } = await pool.query(query, params);
-  return generatePDF(rows);
+  const userResult = await pool.query('SELECT full_name FROM users WHERE id = $1', [userId]);
+  const meta = { name: userResult.rows[0]?.full_name || '', email: userEmail, filters };
+  return generatePDF(rows, meta);
 };
