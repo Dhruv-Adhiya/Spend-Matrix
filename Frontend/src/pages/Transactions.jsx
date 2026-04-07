@@ -3,6 +3,7 @@ import MainLayout from '../layouts/MainLayout';
 import CategoryDropdown from '../components/CategoryDropdown';
 import SearchBar from '../components/SearchBar';
 import FilterBar, { FILTER_DEFAULTS } from '../components/FilterBar';
+import ExportButtons from '../components/ExportButtons';
 import { transactionAPI } from '../services/api';
 
 const EMPTY_FORM = {
@@ -228,12 +229,18 @@ export default function Transactions() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-gray-800">Transactions</h1>
-        <button
-          onClick={() => { setEditTarget(null); setShowModal(true); }}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
-        >
-          + Add Transaction
-        </button>
+        <div className="flex items-center gap-3">
+          <ExportButtons
+            filters={{ search, ...filters }}
+            disabled={!loading && transactions.length === 0}
+          />
+          <button
+            onClick={() => { setEditTarget(null); setShowModal(true); }}
+            className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
+          >
+            + Add Transaction
+          </button>
+        </div>
       </div>
 
       {/* Search + Filters */}
