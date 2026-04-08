@@ -161,4 +161,80 @@ const insertAuditLog = async ({ user_id, action, entity_type = null, entity_id =
   }
 };
 
-module.exports = { getAllUsers, getUserById, blockUser, deleteUser, getDashboardStats, getAuditLogs, insertAuditLog };
+const getAllTransactions = async ({ search, type, startDate, endDate, page = 1, limit = 15 }) => {
+  const parsedLimit = Math.min(parseInt(limit) || 15, 100);
+  const parsedPage = Math.max(parseInt(page) || 1, 1);
+  const offset = (parsedPage - 1) * parsedLimit;
+
+  const conditions = [];
+  const params = [];
+
+  if (search && search.trim()) {
+    params.push(`%${search.trim()}%`);
+    conditions.push(`t.description ILIKE $${params.length}`);
+  }
+  if (type) {
+    params.push(type);
+    conditions.push(`t.type = $${params.length}`);
+  }
+  if (startDate) {
+    params.push(startDate);
+    conditions.push(`t.transaction_date >= $${params.length}`);
+  }
+  if (endDate) {
+    params.push(endDate);
+    conditions.push(`t.transaction_date <= $${params.length}`);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const [dataResult, countResult] = await Promise.all([
+    pool.query(
+      `SELECT t.id, t.user_id, u.email AS user_email, t.category_id, c.name AS category_name,
+              t.type, t.amount, t.description, t.transaction_date, t.payment_source, t.created_at
+       FROM transactions t
+       LEFT JOIN users u ON u.id = t.user_id
+       LEFT JOIN categories c ON c.id = t.category_id
+       ${where}
+       ORDER BY t.transaction_date DESC, t.id DESC
+       LIMIT ${parsedLimit} OFFSET ${offset}`,
+      params
+    ),
+    pool.query(`SELECT COUNT(*) FROM transactions t ${where}`, params),
+  ]);
+
+  const total = parseInt(countResult.rows[0].count);
+  return {
+    data: dataResult.rows,
+    pagination: { total, page: parsedPage, limit: parsedLimit, totalPages: Math.ceil(total / parsedLimit) },
+  };
+};
+
+const getAllRecurring = async ({ page = 1, limit = 50 }) => {
+  const parsedLimit = Math.min(parseInt(limit) || 50, 200);
+  const parsedPage = Math.max(parseInt(page) || 1, 1);
+  const offset = (parsedPage - 1) * parsedLimit;
+
+  const [dataResult, countResult] = await Promise.all([
+    pool.query(
+      `SELECT r.id, r.user_id, u.email AS user_email, r.category_id, c.name AS category_name,
+              r.type, r.amount, r.description, r.frequency,
+              r.start_date, r.end_date, r.next_run_date, r.last_run_date,
+              r.is_active, r.payment_source, r.created_at
+       FROM recurring_transactions r
+       LEFT JOIN users u ON u.id = r.user_id
+       LEFT JOIN categories c ON c.id = r.category_id
+       ORDER BY r.created_at DESC
+       LIMIT ${parsedLimit} OFFSET ${offset}`
+    ),
+    pool.query(`SELECT COUNT(*) FROM recurring_transactions`),
+  ]);
+
+  const total = parseInt(countResult.rows[0].count);
+  return {
+    data: dataResult.rows,
+    pagination: { total, page: parsedPage, limit: parsedLimit, totalPages: Math.ceil(total / parsedLimit) },
+  };
+};
+
+module.exports = { getAllUsers, getUserById, blockUser, deleteUser, getDashboardStats, getAuditLogs, insertAuditLog, getAllTransactions, getAllRecurring };

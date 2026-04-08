@@ -15,8 +15,10 @@ import VerifyEmail from './pages/VerifyEmail';
 import Admin from './pages/Admin';
 
 function ProtectedRoute({ children }) {
-  const { token } = useAuth();
-  return token ? children : <Navigate to="/login" replace />;
+  const { token, user } = useAuth();
+  if (!token) return <Navigate to="/login" replace />;
+  if (user?.role === 'admin') return <Navigate to="/admin" replace />;
+  return children;
 }
 
 function AdminRoute({ children }) {
@@ -27,8 +29,15 @@ function AdminRoute({ children }) {
 }
 
 function GuestRoute({ children }) {
-  const { token } = useAuth();
-  return token ? <Navigate to="/dashboard" replace /> : children;
+  const { token, user } = useAuth();
+  if (!token) return children;
+  return <Navigate to={user?.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+}
+
+function RootRedirect() {
+  const { token, user } = useAuth();
+  if (!token) return <Navigate to="/login" replace />;
+  return <Navigate to={user?.role === 'admin' ? '/admin' : '/dashboard'} replace />;
 }
 
 export default function App() {
@@ -49,7 +58,7 @@ export default function App() {
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<RootRedirect />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

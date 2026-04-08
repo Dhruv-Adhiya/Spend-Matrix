@@ -9,11 +9,11 @@ export const adminAPI = {
   blockUser: (id, is_blocked) => api.patch(`/admin/users/${id}/block`, { is_blocked }),
   deleteUser: (id) => api.delete(`/admin/users/${id}`),
 
-  // Transactions (global — uses existing /transactions with admin token)
-  getTransactions: (params) => api.get('/transactions/search', { params }),
+  // Transactions (global — dedicated admin endpoint)
+  getTransactions: (params) => api.get('/admin/transactions', { params }),
 
-  // Recurring (global — uses existing /recurring, admin sees all via their token)
-  getRecurring: (params) => api.get('/recurring', { params }),
+  // Recurring (global — dedicated admin endpoint)
+  getRecurring: (params) => api.get('/admin/recurring', { params }),
   updateRecurring: (id, data) => api.put(`/recurring/${id}`, data),
 
   // Audit logs

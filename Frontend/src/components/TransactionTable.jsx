@@ -18,13 +18,10 @@ export default function TransactionTable() {
       if (filters.startDate) params.startDate = filters.startDate;
       if (filters.endDate) params.endDate = filters.endDate;
       const res = await adminAPI.getTransactions(params);
-      const d = res.data;
-      setData(d.data ?? d.transactions ?? []);
-      setMeta({
-        total: d.total ?? 0,
-        page: d.page ?? 1,
-        totalPages: d.totalPages ?? Math.ceil((d.total ?? 0) / 15),
-      });
+      // /admin/transactions returns: { data: [...], pagination: {...} }
+      setData(res.data?.data ?? []);
+      const p = res.data?.pagination ?? {};
+      setMeta({ total: p.total ?? 0, page: p.page ?? 1, totalPages: p.totalPages ?? 1 });
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load transactions');
     } finally {
@@ -38,7 +35,6 @@ export default function TransactionTable() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <input
           type="text"
@@ -77,6 +73,7 @@ export default function TransactionTable() {
           <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
             <tr>
               <th className="px-4 py-3 text-left">ID</th>
+              <th className="px-4 py-3 text-left">User</th>
               <th className="px-4 py-3 text-left">Description</th>
               <th className="px-4 py-3 text-left">Type</th>
               <th className="px-4 py-3 text-left">Amount</th>
@@ -87,13 +84,14 @@ export default function TransactionTable() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (
-              <tr><td colSpan={7} className="text-center py-8 text-gray-400">Loading...</td></tr>
+              <tr><td colSpan={8} className="text-center py-8 text-gray-400">Loading...</td></tr>
             ) : data.length === 0 ? (
-              <tr><td colSpan={7} className="text-center py-8 text-gray-400">No transactions found</td></tr>
+              <tr><td colSpan={8} className="text-center py-8 text-gray-400">No transactions found</td></tr>
             ) : data.map((t) => (
               <tr key={t.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 text-gray-400">{t.id}</td>
-                <td className="px-4 py-3 text-gray-700">{t.description || '—'}</td>
+                <td className="px-4 py-3 text-gray-500 text-xs">{t.user_email ?? t.user_id}</td>
+                <td className="px-4 py-3 text-gray-700">{t.description || '-'}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                     t.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
@@ -103,8 +101,10 @@ export default function TransactionTable() {
                   {t.type === 'income' ? '+' : '-'}${parseFloat(t.amount).toFixed(2)}
                 </td>
                 <td className="px-4 py-3 text-gray-600">{t.category_name ?? t.category_id}</td>
-                <td className="px-4 py-3 text-gray-500 capitalize">{t.payment_source ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-500">{new Date(t.transaction_date ?? t.created_at).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-gray-500 capitalize">{t.payment_source ?? '-'}</td>
+                <td className="px-4 py-3 text-gray-500">
+                  {new Date(t.transaction_date ?? t.created_at).toLocaleDateString()}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -118,13 +118,13 @@ export default function TransactionTable() {
             disabled={filters.page <= 1}
             onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
             className="px-3 py-1 rounded-lg border disabled:opacity-40 hover:bg-gray-50"
-          >← Prev</button>
+          >Prev</button>
           <span className="px-3 py-1">Page {meta.page} / {meta.totalPages || 1}</span>
           <button
             disabled={filters.page >= meta.totalPages}
             onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
             className="px-3 py-1 rounded-lg border disabled:opacity-40 hover:bg-gray-50"
-          >Next →</button>
+          >Next</button>
         </div>
       </div>
     </div>

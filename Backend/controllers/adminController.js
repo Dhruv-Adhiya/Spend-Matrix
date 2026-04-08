@@ -1,6 +1,7 @@
 const {
   getAllUsers, getUserById, blockUser, deleteUser,
   getDashboardStats, getAuditLogs, insertAuditLog,
+  getAllTransactions, getAllRecurring,
 } = require('../services/adminService');
 
 const getIp = (req) =>
@@ -95,4 +96,24 @@ const auditLogs = async (req, res) => {
   }
 };
 
-module.exports = { listUsers, getUser, toggleBlock, removeUser, dashboard, auditLogs };
+// GET /api/admin/transactions
+const listTransactions = async (req, res) => {
+  try {
+    const result = await getAllTransactions(req.query);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// GET /api/admin/recurring
+const listRecurring = async (req, res) => {
+  try {
+    const result = await getAllRecurring(req.query);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { listUsers, getUser, toggleBlock, removeUser, dashboard, auditLogs, listTransactions, listRecurring };

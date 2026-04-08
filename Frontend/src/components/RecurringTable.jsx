@@ -3,17 +3,22 @@ import { adminAPI } from '../services/adminService';
 
 export default function RecurringTable() {
   const [data, setData] = useState([]);
+  const [meta, setMeta] = useState({ total: 0, page: 1, totalPages: 1 });
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [actionError, setActionError] = useState('');
   const [toggling, setToggling] = useState(null);
 
-  const fetchRecurring = async () => {
+  const fetchRecurring = async (p = 1) => {
     setLoading(true);
     setError('');
     try {
-      const res = await adminAPI.getRecurring();
+      const res = await adminAPI.getRecurring({ page: p, limit: 50 });
+      // /admin/recurring returns: { data: [...], pagination: {...} }
       setData(res.data?.data ?? []);
+      const pg = res.data?.pagination ?? {};
+      setMeta({ total: pg.total ?? 0, page: pg.page ?? 1, totalPages: pg.totalPages ?? 1 });
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load recurring rules');
     } finally {
@@ -21,24 +26,19 @@ export default function RecurringTable() {
     }
   };
 
-  useEffect(() => { fetchRecurring(); }, []);
+  useEffect(() => { fetchRecurring(page); }, [page]);
 
   const handleToggle = async (rule) => {
     const newState = !rule.is_active;
-    if (
-      !newState &&
-      !window.confirm(
-        `Disable recurring rule #${rule.id}? If it's mid-cycle, the next run will be skipped.`
-      )
-    ) return;
+    if (!newState && !window.confirm(
+      `Disable recurring rule #${rule.id}? If it is mid-cycle, the next run will be skipped.`
+    )) return;
 
     setToggling(rule.id);
     setActionError('');
     try {
       await adminAPI.updateRecurring(rule.id, { is_active: newState });
-      setData((prev) =>
-        prev.map((r) => (r.id === rule.id ? { ...r, is_active: newState } : r))
-      );
+      setData((prev) => prev.map((r) => r.id === rule.id ? { ...r, is_active: newState } : r));
     } catch (err) {
       setActionError(err.response?.data?.error || err.response?.data?.message || 'Toggle failed');
     } finally {
@@ -46,10 +46,7 @@ export default function RecurringTable() {
     }
   };
 
-  const freqBadge = (f) => {
-    const map = { daily: 'bg-blue-100 text-blue-700', weekly: 'bg-purple-100 text-purple-700', monthly: 'bg-indigo-100 text-indigo-700', yearly: 'bg-pink-100 text-pink-700' };
-    return map[f] ?? 'bg-gray-100 text-gray-600';
-  };
+  const freqColor = { daily: 'bg-blue-100 text-blue-700', weekly: 'bg-purple-100 text-purple-700', monthly: 'bg-indigo-100 text-indigo-700', yearly: 'bg-pink-100 text-pink-700' };
 
   return (
     <div className="flex flex-col gap-4">
@@ -61,7 +58,7 @@ export default function RecurringTable() {
           <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
             <tr>
               <th className="px-4 py-3 text-left">ID</th>
-              <th className="px-4 py-3 text-left">User ID</th>
+              <th className="px-4 py-3 text-left">User</th>
               <th className="px-4 py-3 text-left">Category</th>
               <th className="px-4 py-3 text-left">Type</th>
               <th className="px-4 py-3 text-left">Amount</th>
@@ -79,8 +76,8 @@ export default function RecurringTable() {
             ) : data.map((r) => (
               <tr key={r.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 text-gray-400">{r.id}</td>
-                <td className="px-4 py-3 text-gray-600">{r.user_id}</td>
-                <td className="px-4 py-3 text-gray-700">{r.category_id}</td>
+                <td className="px-4 py-3 text-gray-500 text-xs">{r.user_email ?? r.user_id}</td>
+                <td className="px-4 py-3 text-gray-700">{r.category_name ?? r.category_id}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                     r.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
@@ -90,12 +87,12 @@ export default function RecurringTable() {
                   ${parseFloat(r.amount).toFixed(2)}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${freqBadge(r.frequency)}`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${freqColor[r.frequency] ?? 'bg-gray-100 text-gray-600'}`}>
                     {r.frequency}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-gray-500">
-                  {r.next_run_date ? new Date(r.next_run_date).toLocaleDateString() : '—'}
+                  {r.next_run_date ? new Date(r.next_run_date).toLocaleDateString() : '-'}
                 </td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -120,7 +117,23 @@ export default function RecurringTable() {
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-gray-400">{data.length} rules loaded</p>
+
+      <div className="flex items-center justify-between text-sm text-gray-500">
+        <span>{meta.total} total rules</span>
+        <div className="flex gap-2">
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="px-3 py-1 rounded-lg border disabled:opacity-40 hover:bg-gray-50"
+          >Prev</button>
+          <span className="px-3 py-1">Page {meta.page} / {meta.totalPages || 1}</span>
+          <button
+            disabled={page >= meta.totalPages}
+            onClick={() => setPage((p) => p + 1)}
+            className="px-3 py-1 rounded-lg border disabled:opacity-40 hover:bg-gray-50"
+          >Next</button>
+        </div>
+      </div>
     </div>
   );
 }
