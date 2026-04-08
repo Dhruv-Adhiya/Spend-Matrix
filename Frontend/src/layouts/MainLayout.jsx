@@ -12,6 +12,7 @@ const navItems = [
   { to: '/settings', label: 'Settings' },
 ];
 
+
 export default function MainLayout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -56,6 +57,20 @@ export default function MainLayout({ children }) {
               {label}
             </NavLink>
           ))}
+          {user?.role === 'admin' && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `px-4 py-2 rounded-lg text-sm font-medium transition mt-2 border-t pt-3 ${
+                  isActive
+                    ? 'bg-purple-50 text-purple-600'
+                    : 'text-purple-500 hover:bg-purple-50'
+                }`
+              }
+            >
+              🛡 Admin Panel
+            </NavLink>
+          )}
         </aside>
 
         {/* Main content */}
