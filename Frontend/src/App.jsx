@@ -13,6 +13,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
 import Admin from './pages/Admin';
+import Recurring from './pages/Recurring';
 
 function ProtectedRoute({ children }) {
   const { token, user } = useAuth();
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/recurring" element={<ProtectedRoute><Recurring /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="*" element={<RootRedirect />} />
         </Routes>

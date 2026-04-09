@@ -8,6 +8,7 @@ const navItems = [
   { to: '/categories', label: 'Categories' },
   { to: '/budgets', label: 'Budgets' },
   { to: '/analytics', label: 'Analytics' },
+  { to: '/recurring', label: 'Recurring' },
   { to: '/notifications', label: 'Notifications' },
   { to: '/settings', label: 'Settings' },
 ];

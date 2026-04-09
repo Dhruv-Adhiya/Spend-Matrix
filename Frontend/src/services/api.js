@@ -47,6 +47,14 @@ export const budgetAPI = {
   remove: (id) => api.delete(`/budgets/${id}`),
 };
 
+export const recurringAPI = {
+  getAll: () => api.get('/recurring'),
+  create: (data) => api.post('/recurring', data),
+  update: (id, data) => api.put(`/recurring/${id}`, data),
+  remove: (id) => api.delete(`/recurring/${id}`),
+  toggle: (id, is_active) => api.put(`/recurring/${id}`, { is_active }),
+};
+
 export const notificationAPI = {
   getAll: (params) => api.get('/notifications', { params }),
   markAsRead: (id) => api.patch(`/notifications/${id}/read`),
