@@ -6,7 +6,7 @@ import AdminSidebar from '../components/AdminSidebar';
 import StatsCard from '../components/StatsCard';
 import UserTable from '../components/UserTable';
 import TransactionTable from '../components/TransactionTable';
-import RecurringTable from '../components/RecurringTable';
+import AdminRecurringTable from '../components/AdminRecurringTable';
 import NotificationBell from '../components/NotificationBell';
 
 // ── Audit Logs Tab ────────────────────────────────────────────────────────────
@@ -188,7 +188,7 @@ export default function Admin() {
       case 'stats': return <SystemStats />;
       case 'users': return <UserTable />;
       case 'transactions': return <TransactionTable />;
-      case 'recurring': return <RecurringTable />;
+      case 'recurring': return <AdminRecurringTable />;
       case 'logs': return <AuditLogs />;
       default: return null;
     }

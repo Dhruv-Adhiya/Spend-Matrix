@@ -14,7 +14,7 @@ export const adminAPI = {
 
   // Recurring (global — dedicated admin endpoint)
   getRecurring: (params) => api.get('/admin/recurring', { params }),
-  updateRecurring: (id, data) => api.put(`/recurring/${id}`, data),
+  toggleRecurring: (id) => api.patch(`/admin/recurring/${id}/toggle`),
 
   // Audit logs
   getLogs: (params) => api.get('/admin/logs', { params }),

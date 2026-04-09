@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adminMiddleware = require('../middleware/adminMiddleware');
-const { listUsers, getUser, toggleBlock, removeUser, dashboard, auditLogs, listTransactions, listRecurring } = require('../controllers/adminController');
+const { listUsers, getUser, toggleBlock, removeUser, dashboard, auditLogs, listTransactions, listRecurring, toggleRecurring } = require('../controllers/adminController');
 
 router.use(adminMiddleware);
 
@@ -13,5 +13,6 @@ router.delete('/users/:id', removeUser);
 router.get('/logs', auditLogs);
 router.get('/transactions', listTransactions);
 router.get('/recurring', listRecurring);
+router.patch('/recurring/:id/toggle', toggleRecurring);
 
 module.exports = router;

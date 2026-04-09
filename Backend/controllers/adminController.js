@@ -1,3 +1,4 @@
+const pool = require('../config/db');
 const {
   getAllUsers, getUserById, blockUser, deleteUser,
   getDashboardStats, getAuditLogs, insertAuditLog,
@@ -116,4 +117,29 @@ const listRecurring = async (req, res) => {
   }
 };
 
-module.exports = { listUsers, getUser, toggleBlock, removeUser, dashboard, auditLogs, listTransactions, listRecurring };
+// PATCH /api/admin/recurring/:id/toggle
+const toggleRecurring = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id || isNaN(parseInt(id))) {
+      return res.status(400).json({ error: 'Valid id required' });
+    }
+    const check = await pool.query(
+      'SELECT id, is_active FROM recurring_transactions WHERE id = $1',
+      [parseInt(id)]
+    );
+    if (check.rows.length === 0) {
+      return res.status(404).json({ error: 'Recurring rule not found' });
+    }
+    const newState = !check.rows[0].is_active;
+    const result = await pool.query(
+      'UPDATE recurring_transactions SET is_active = $1 WHERE id = $2 RETURNING *',
+      [newState, parseInt(id)]
+    );
+    res.json({ success: true, message: `Rule ${newState ? 'enabled' : 'disabled'} successfully`, data: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { listUsers, getUser, toggleBlock, removeUser, dashboard, auditLogs, listTransactions, listRecurring, toggleRecurring };
