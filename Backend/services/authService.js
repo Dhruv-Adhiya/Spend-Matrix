@@ -77,7 +77,7 @@ const verifyEmailToken = async (token) => {
     [token]
   );
 
-  if (result.rows.length === 0) throw new Error('INVALID_TOKEN');
+  if (result.rows.length === 0) throw new Error('ALREADY_VERIFIED');
 
   const record = result.rows[0];
 

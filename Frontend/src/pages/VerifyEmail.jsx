@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const [status, setStatus] = useState('loading'); // 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('');
+  const called = useRef(false);
 
   useEffect(() => {
+    if (called.current) return;
+    called.current = true;
+
     if (!token) {
       setStatus('error');
       setMessage('Invalid or missing verification token.');
@@ -21,8 +25,14 @@ export default function VerifyEmail() {
         setMessage('Email verified successfully. You can now log in.');
       })
       .catch((err) => {
-        setStatus('error');
-        setMessage(err.response?.data?.error || 'Verification failed. The link may have expired.');
+        const error = err.response?.data?.error || '';
+        if (error === 'Email is already verified.') {
+          setStatus('success');
+          setMessage('Your email is already verified. You can log in.');
+        } else {
+          setStatus('error');
+          setMessage(error || 'Verification failed. The link may have expired.');
+        }
       });
   }, [token]);
 
