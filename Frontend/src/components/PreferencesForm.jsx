@@ -75,7 +75,7 @@ export default function PreferencesForm({ initialData }) {
           onChange={handleChange}
           className="w-4 h-4 accent-indigo-600"
         />
-        <span className="text-sm font-medium text-gray-700">Enable Email Notifications</span>
+        <span className="text-sm font-medium text-gray-700">Enable Notifications</span>
       </label>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
