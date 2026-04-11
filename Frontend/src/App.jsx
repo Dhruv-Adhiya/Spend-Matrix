@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -37,7 +38,7 @@ function GuestRoute({ children }) {
 
 function RootRedirect() {
   const { token, user } = useAuth();
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/" replace />;
   return <Navigate to={user?.role === 'admin' ? '/admin' : '/dashboard'} replace />;
 }
 
@@ -46,6 +47,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
           <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
