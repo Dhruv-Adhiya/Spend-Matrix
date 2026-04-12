@@ -3,8 +3,13 @@ import MainLayout from '../layouts/MainLayout';
 import SummaryCard from '../components/SummaryCard';
 import TransactionList from '../components/TransactionList';
 import { dashboardAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+
+const toTitleCase = (str) =>
+  str?.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()) || '';
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,7 +28,9 @@ export default function Dashboard() {
 
   return (
     <MainLayout>
-      <h1 className="text-xl font-bold text-gray-800 mb-6">Dashboard</h1>
+      <h1 className="text-xl font-bold text-gray-800 mb-6">
+        {user?.full_name ? `Welcome, ${toTitleCase(user.full_name)}` : 'Dashboard'}
+      </h1>
 
       {loading && (
         <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
