@@ -195,36 +195,35 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm h-14 flex items-center px-6 justify-between z-10">
-        <div className="flex items-center gap-3">
-          <span className="text-indigo-600 font-bold text-lg">SpendMatrix</span>
-          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">Admin</span>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FAF8FF' }}>
+      {/* Admin Header */}
+      <header style={{ height: 64, background: 'rgba(245,243,255,0.95)', backdropFilter: 'blur(16px)', borderBottom: '1.5px solid rgba(196,181,253,0.4)', boxShadow: '0 2px 20px rgba(139,92,246,0.06)', position: 'sticky', top: 0, zIndex: 50, padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 20 }}>💰</span>
+          <span style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 400, fontSize: '0.875rem', color: '#9CA3AF' }}>SpendMatrix</span>
+          <span style={{ fontFamily: '"DM Sans",sans-serif', color: '#D1D5DB' }}>/</span>
+          <span style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.875rem', color: '#7C3AED' }}>🛡️ Admin Panel</span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-600">{user.full_name}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <NotificationBell />
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="text-sm px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition"
-          >
-            ← App
-          </button>
-          <button
-            onClick={handleLogout}
-            className="text-sm px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
-          >
-            Logout
-          </button>
+          <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: 14, color: '#fff' }}>
+            {user?.full_name?.split(' ').map(p => p[0]).join('').toUpperCase().slice(0,2)}
+          </div>
+          <button onClick={() => navigate('/dashboard')}
+            style={{ height: 32, padding: '0 12px', background: 'rgba(124,58,237,0.1)', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 8, fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: 13, cursor: 'pointer', transition: 'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.1)'; e.currentTarget.style.color = '#7C3AED'; }}
+          >Exit Admin</button>
         </div>
       </header>
 
-      <div className="flex flex-1">
+      <div style={{ display: 'flex', flex: 1 }}>
         <AdminSidebar active={tab} onChange={setTab} />
-        <main className="flex-1 p-6 overflow-auto">
-          <h1 className="text-xl font-bold text-gray-800 mb-5">{tabTitles[tab]}</h1>
-          {renderTab()}
+        <main style={{ flex: 1, padding: '28px 32px', overflowY: 'auto', backgroundImage: 'radial-gradient(circle, rgba(139,92,246,0.04) 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
+          <div className="page-enter">
+            <h1 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 700, fontSize: '1.5rem', color: '#7C3AED', marginBottom: 20 }}>{tabTitles[tab]}</h1>
+            {renderTab()}
+          </div>
         </main>
       </div>
     </div>

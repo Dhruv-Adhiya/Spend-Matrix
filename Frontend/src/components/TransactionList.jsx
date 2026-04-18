@@ -16,7 +16,7 @@ function getCategoryColor(cat) {
 
 function formatDate(dateStr) {
   if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(dateStr).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function formatAmount(amount) {
@@ -42,7 +42,9 @@ export default function TransactionList({ transactions }) {
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '16px 24px 12px', borderBottom: '1px solid #F3F4F6',
+        padding: '16px 24px 12px',
+        marginBottom: 16,
+        borderBottom: '1px solid #F3F4F6',
       }}>
         <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 600, fontSize: '1rem', color: '#111827' }}>
           Recent Transactions
@@ -62,9 +64,22 @@ export default function TransactionList({ transactions }) {
             style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '12px 0',
+              margin: '0',
               borderBottom: i < Math.min(transactions.length, 5) - 1 ? '1px solid #F3F4F6' : 'none',
               animation: 'fadeInUp 0.3s ease both',
               animationDelay: `${i * 0.05}s`,
+              cursor: 'default',
+              transition: 'background 0.15s ease, padding 0.15s ease, margin 0.15s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(79,70,229,0.025)';
+              e.currentTarget.style.margin = '0 -24px';
+              e.currentTarget.style.padding = '12px 24px';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = '';
+              e.currentTarget.style.margin = '0';
+              e.currentTarget.style.padding = '12px 0';
             }}
           >
             {/* Category icon */}

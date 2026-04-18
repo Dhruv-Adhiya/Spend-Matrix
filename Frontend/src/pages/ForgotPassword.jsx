@@ -44,8 +44,8 @@ function AuthCard({ children }) {
 function ErrorAlert({ msg }) {
   if (!msg) return null;
   return (
-    <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 14px', color: '#DC2626', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', marginBottom: 16, display: 'flex', gap: 8 }}>
-      ⚠️ {msg}
+    <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 14px', color: '#DC2626', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+      <span style={{ flexShrink: 0 }}>⚠️</span><span>{msg}</span>
     </div>
   );
 }
@@ -81,7 +81,9 @@ export default function ForgotPassword() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 20px', animation: 'countUp 0.4s ease',
             }}>
-              <span style={{ fontSize: 30, color: '#059669' }}>✓</span>
+              <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                <path d="M6 15l6 6 12-12" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
             <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 700, fontSize: '1.25rem', color: '#111827' }}>Check your inbox!</h2>
             <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.875rem', color: '#6B7280', lineHeight: 1.6, marginTop: 8 }}>

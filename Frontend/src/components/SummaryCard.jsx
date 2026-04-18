@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 function useCountUp(target, duration = 600) {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    if (!target) return;
+    if (target == null) return;
     let start = 0;
     const step = target / (duration / 16);
     const timer = setInterval(() => {
@@ -67,10 +67,10 @@ export default function SummaryCard({ title, amount, type }) {
         background: c.bar,
       }} />
 
-      {/* Decorative circle */}
+      {/* Decorative circle — 120px per spec */}
       <div style={{
         position: 'absolute', bottom: -20, right: -20,
-        width: 100, height: 100, borderRadius: '50%',
+        width: 120, height: 120, borderRadius: '50%',
         background: c.decor, pointerEvents: 'none',
       }} />
 

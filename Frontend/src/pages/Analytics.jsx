@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import AnalyticsFilterBar from '../components/AnalyticsFilterBar';
 import SummaryCard from '../components/SummaryCard';
 import CategoryChart from '../components/CategoryChart';
 import PaymentSourceChart from '../components/PaymentSourceChart';
@@ -9,6 +8,8 @@ import BudgetComparisonChart from '../components/BudgetComparisonChart';
 import analyticsAPI from '../services/analyticsService';
 
 const now = new Date();
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'].map((l,i) => ({ label: l, value: i+1 }));
+const years = [2023,2024,2025,2026,2027].map(y => ({ label: String(y), value: y }));
 
 const defaultFilters = {
   month: now.getMonth() + 1,
@@ -61,39 +62,53 @@ export default function Analytics() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <h1 className="text-xl font-bold text-gray-800">Analytics</h1>
+      <div className="page-enter">
+        <h1 className="gradient-text" style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 700, fontSize: '1.5rem', marginBottom: 16 }}>Analytics</h1>
 
-        <AnalyticsFilterBar filters={filters} onChange={setFilters} />
+        {/* Filter Bar */}
+        <div className="card" style={{ padding: '14px 20px', marginBottom: 20 }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            {[['Month','month',months,150],['Year','year',years,110]].map(([label,key,opts,w]) => (
+              <div key={key} style={{ display: 'flex', flexDirection: 'column' }}>
+                <label style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: '#374151', marginBottom: 4 }}>{label}</label>
+                <select value={filters[key]} onChange={e => setFilters(f => ({ ...f, [key]: Number(e.target.value) }))} className="input" style={{ width: w }}>
+                  {opts.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+            ))}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: '#374151', marginBottom: 4 }}>Payment Source</label>
+              <select value={filters.payment_source} onChange={e => setFilters(f => ({ ...f, payment_source: e.target.value }))} className="input" style={{ width: 160 }}>
+                <option value="">All Sources</option>
+                <option value="online">Online</option>
+                <option value="cash">Cash</option>
+                <option value="credit_card">Credit Card</option>
+              </select>
+            </div>
+            <button onClick={fetchAll} className="btn btn-primary" style={{ padding: '10px 16px', fontSize: '0.875rem' }}>Apply Filters</button>
+          </div>
+        </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 text-sm rounded-lg px-4 py-3">{error}</div>
-        )}
+        {error && <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 16px', color: '#DC2626', fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', marginBottom: 16 }}>{error}</div>}
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 256, gap: 12 }}>
+            <span className="spinner" />
+            <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#9CA3AF', marginTop: 12 }}>Loading analytics...</p>
           </div>
         ) : (
           <>
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 20 }}>
               <SummaryCard title="Total Income" amount={summary?.total_income ?? 0} type="income" />
               <SummaryCard title="Total Expense" amount={summary?.total_expense ?? 0} type="expense" />
               <SummaryCard title="Savings" amount={summary?.savings ?? 0} type="balance" />
             </div>
-
-            {/* Pie Charts Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               <CategoryChart data={categoryData} />
               <PaymentSourceChart data={paymentData} />
             </div>
-
-            {/* Daily Expense Line Chart */}
             <DailyExpenseChart data={dailyData} />
-
-            {/* Budget vs Actual Bar Chart */}
-            <BudgetComparisonChart data={budgetData} />
+            <div style={{ marginTop: 16 }}><BudgetComparisonChart data={budgetData} /></div>
           </>
         )}
       </div>

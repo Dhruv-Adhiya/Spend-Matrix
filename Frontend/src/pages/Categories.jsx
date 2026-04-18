@@ -2,9 +2,13 @@ import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/categoryService';
 
-function CategoryFormModal({ initial, onClose, onSaved }) {
+const CAT_BG_COLORS = ['#EEF2FF','#D1FAE5','#FEF3C7','#FCE7F3','#DBEAFE','#FEE2E2','#F3E8FF','#FDF4FF'];
+const CAT_ACCENT_COLORS = ['#4F46E5','#10B981','#F59E0B','#EC4899','#3B82F6','#EF4444','#8B5CF6','#A855F7'];
+const COLOR_OPTS = ['#4F46E5','#10B981','#F59E0B','#EF4444','#8B5CF6','#3B82F6','#EC4899','#14B8A6'];
+
+function CategoryFormModal({ initial, onClose, onSaved, defaultType }) {
   const isEdit = !!initial?.id;
-  const [form, setForm] = useState({ name: initial?.name || '', type: initial?.type || 'expense' });
+  const [form, setForm] = useState({ name: initial?.name || '', type: initial?.type || defaultType || 'expense', color: initial?.color || COLOR_OPTS[0] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -15,71 +19,66 @@ function CategoryFormModal({ initial, onClose, onSaved }) {
     setError('');
     setLoading(true);
     try {
-      if (isEdit) {
-        await updateCategory(initial.id, { name, type: form.type });
-      } else {
-        await createCategory({ name, type: form.type });
-      }
+      if (isEdit) await updateCategory(initial.id, { name, type: form.type, color: form.color });
+      else await createCategory({ name, type: form.type, color: form.color });
       onSaved();
       onClose();
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to save category.';
-      setError(
-        msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('duplicate')
-          ? 'A category with this name already exists.'
-          : msg
-      );
+      setError(msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('duplicate') ? 'A category with this name already exists.' : msg);
     } finally {
       setLoading(false);
     }
   };
 
+  const lbl = { fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: '#374151', marginBottom: 6, display: 'block' };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-gray-800">
-            {isEdit ? 'Edit Category' : 'New Category'}
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      onClick={onClose}>
+      <div style={{ background: '#fff', borderRadius: 20, width: 380, maxWidth: '100%', padding: 28, boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both' }}
+        onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          <h2 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: '#111827' }}>{isEdit ? 'Edit Category' : 'New Category'}</h2>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(79,70,229,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = '#EF4444'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.06)'; e.currentTarget.style.color = '#6B7280'; }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
-
-        {error && (
-          <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2 mb-3">{error}</p>
-        )}
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        {error && <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '10px 14px', color: '#DC2626', fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', marginBottom: 16 }}>{error}</div>}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Name</label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="e.g. Travel"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            />
+            <label style={lbl}>Category Name</label>
+            <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Travel, Food, Salary..." className="input" />
           </div>
-
+          {!isEdit && (
+            <div>
+              <label style={lbl}>Type</label>
+              <div style={{ display: 'flex', background: '#F3F4F6', borderRadius: 10, padding: 4, gap: 4 }}>
+                {['expense','income'].map(t => (
+                  <button key={t} type="button" onClick={() => setForm(f => ({ ...f, type: t }))}
+                    style={{ flex: 1, padding: 8, borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.875rem', transition: 'all 0.2s',
+                      ...(form.type === t ? { background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', color: '#fff', boxShadow: '0 2px 8px rgba(79,70,229,0.3)' } : { background: 'transparent', color: '#9CA3AF' }) }}
+                  >{t === 'expense' ? 'Expense' : 'Income'}</button>
+                ))}
+              </div>
+            </div>
+          )}
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Type</label>
-            <select
-              value={form.type}
-              onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            >
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-            </select>
+            <label style={lbl}>Pick a Color</label>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {COLOR_OPTS.map(c => (
+                <button key={c} type="button" onClick={() => setForm(f => ({ ...f, color: c }))}
+                  style={{ width: 28, height: 28, borderRadius: '50%', background: c, border: form.color === c ? `3px solid ${c}80` : '2px solid transparent', cursor: 'pointer', transform: form.color === c ? 'scale(1.15)' : 'scale(1)', transition: 'all 0.15s', outline: form.color === c ? `2px solid ${c}` : 'none', outlineOffset: 2 }}
+                />
+              ))}
+            </div>
           </div>
-
-          <div className="flex gap-2 mt-1">
-            <button type="button" onClick={onClose}
-              className="flex-1 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading}
-              className="flex-1 py-2 rounded-lg bg-indigo-600 text-white text-sm hover:bg-indigo-700 transition disabled:opacity-60">
-              {loading ? 'Saving…' : isEdit ? 'Update' : 'Create'}
+          <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+            <button type="button" onClick={onClose} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>
+            <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>
+              {loading ? <><span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> Saving...</> : isEdit ? 'Update' : 'Create'}
             </button>
           </div>
         </form>
@@ -120,6 +119,7 @@ export default function Categories() {
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('expense');
 
   const fetchCategories = () => {
     setLoading(true);
@@ -145,68 +145,91 @@ export default function Categories() {
     }
   };
 
-  const income = categories.filter((c) => c.type === 'income');
-  const expense = categories.filter((c) => c.type === 'expense');
-
-  const renderGroup = (title, items, colorClass) => (
-    <div>
-      <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{title}</h2>
-      {items.length === 0 ? (
-        <p className="text-sm text-gray-400 py-3">No {title.toLowerCase()} categories yet.</p>
-      ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <ul className="divide-y divide-gray-100">
-            {items.map((cat) => (
-              <li key={cat.id} className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${colorClass}`} />
-                  <span className="text-sm text-gray-800">{cat.name}</span>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => { setEditTarget(cat); setShowModal(true); }}
-                    className="text-indigo-500 hover:text-indigo-700 text-xs font-medium"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => setDeleteTarget(cat)}
-                    className="text-red-400 hover:text-red-600 text-xs font-medium"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
+  const filtered = categories.filter(c => c.type === activeTab);
 
   return (
     <MainLayout>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-gray-800">Categories</h1>
-        <button
-          onClick={() => { setEditTarget(null); setShowModal(true); }}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
-        >
-          + Add Category
-        </button>
+      <div className="page-enter">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <h1 className="gradient-text" style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 700, fontSize: '1.5rem' }}>Categories</h1>
+        <button onClick={() => { setEditTarget(null); setShowModal(true); }} className="btn btn-primary" style={{ padding: '10px 18px', fontSize: '0.875rem' }}>+ New Category</button>
       </div>
 
-      {error && (
-        <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2 mb-4">{error}</p>
-      )}
+      {/* Tab Switcher */}
+      <div style={{ display: 'inline-flex', background: '#F3F4F6', borderRadius: 12, padding: 4, gap: 8, marginBottom: 20 }}>
+        {['expense','income'].map(t => (
+          <button key={t} onClick={() => setActiveTab(t)}
+            style={{
+              padding: '8px 20px', borderRadius: 9, border: 'none', cursor: 'pointer',
+              fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.875rem',
+              transition: 'all 0.2s ease',
+              ...(activeTab === t
+                ? { background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', color: '#fff', boxShadow: '0 2px 8px rgba(79,70,229,0.3)' }
+                : { background: 'transparent', color: '#9CA3AF' }),
+            }}
+          >{t === 'expense' ? 'Expense Categories' : 'Income Categories'}</button>
+        ))}
+      </div>
+
+      {error && <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 16px', color: '#DC2626', fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', marginBottom: 16 }}>{error}</div>}
 
       {loading ? (
-        <div className="flex items-center justify-center h-48 text-gray-400 text-sm">Loading…</div>
-      ) : (
-        <div className="flex flex-col gap-6">
-          {renderGroup('Income', income, 'bg-green-400')}
-          {renderGroup('Expense', expense, 'bg-red-400')}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 192, gap: 10 }}>
+          <span className="spinner" />
         </div>
+      ) : (
+        <>
+          {/* Category Grid */}
+          {filtered.length === 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 240, gap: 12 }}>
+              <span style={{ fontSize: 52 }}>🏷️</span>
+              <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.9375rem', color: '#9CA3AF' }}>No {activeTab} categories yet</p>
+              <button className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.875rem' }} onClick={() => { setEditTarget(null); setShowModal(true); }}>+ Add Category</button>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+              {filtered.map((cat, i) => (
+                <div key={cat.id} className="card card-hover"
+                  style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14, position: 'relative', overflow: 'hidden', animation: 'fadeInUp 0.3s ease both', animationDelay: `${i*0.05}s` }}
+                  onMouseEnter={e => e.currentTarget.querySelector('.cat-actions').style.opacity = '1'}
+                  onMouseLeave={e => e.currentTarget.querySelector('.cat-actions').style.opacity = '0'}
+                >
+                  {/* Icon circle */}
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: CAT_BG_COLORS[i % CAT_BG_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans",sans-serif', fontWeight: 700, fontSize: 16, flexShrink: 0, color: '#374151' }}>
+                    {cat.name[0].toUpperCase()}
+                  </div>
+                  {/* Center */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.9375rem', color: '#111827' }}>{cat.name}</p>
+                    <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 400, fontSize: '0.8rem', color: '#9CA3AF', marginTop: 3 }}>{cat.transaction_count ?? 0} transactions</p>
+                    <div style={{ marginTop: 8, height: 4, borderRadius: 999, background: '#F3F4F6' }}>
+                      <div style={{ height: 4, borderRadius: 999, background: CAT_ACCENT_COLORS[i % CAT_ACCENT_COLORS.length], width: `${Math.min((cat.transaction_count || 0) * 5, 100)}%`, transition: 'width 0.8s ease' }} />
+                    </div>
+                  </div>
+                  {/* System badge */}
+                  {cat.is_default && (
+                    <span style={{ position: 'absolute', top: 8, right: 8, background: '#F3F4F6', color: '#9CA3AF', border: '1px solid #E5E7EB', fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.75rem', padding: '2px 8px', borderRadius: 999 }}>Default</span>
+                  )}
+                  {/* Actions */}
+                  <div className="cat-actions" style={{ display: 'flex', gap: 4, opacity: 0, transition: 'opacity 0.15s', flexShrink: 0 }}>
+                    <button onClick={() => { setEditTarget(cat); setShowModal(true); }} disabled={cat.is_default}
+                      style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'transparent', cursor: cat.is_default ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', opacity: cat.is_default ? 0.4 : 1 }}
+                      onMouseEnter={e => { if (!cat.is_default) e.currentTarget.style.color = '#4F46E5'; }}
+                      onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button onClick={() => setDeleteTarget(cat)} disabled={cat.is_default}
+                      style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'transparent', cursor: cat.is_default ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', opacity: cat.is_default ? 0.4 : 1 }}
+                      onMouseEnter={e => { if (!cat.is_default) e.currentTarget.style.color = '#EF4444'; }}
+                      onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {showModal && (
@@ -214,17 +237,30 @@ export default function Categories() {
           initial={editTarget}
           onClose={() => { setShowModal(false); setEditTarget(null); }}
           onSaved={fetchCategories}
+          defaultType={activeTab}
         />
       )}
 
       {deleteTarget && (
-        <DeleteConfirm
-          category={deleteTarget}
-          onConfirm={handleDelete}
-          onCancel={() => setDeleteTarget(null)}
-          loading={deleteLoading}
-        />
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={() => setDeleteTarget(null)}>
+          <div style={{ background: '#fff', borderRadius: 20, width: 380, maxWidth: '100%', padding: 28, boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both', textAlign: 'center' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', animation: 'countUp 0.3s ease' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            </div>
+            <h3 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: '#111827' }}>Delete Category?</h3>
+            <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#6B7280', lineHeight: 1.6, marginTop: 8 }}>This cannot be undone. Categories with existing transactions cannot be deleted.</p>
+            <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+              <button onClick={() => setDeleteTarget(null)} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>
+              <button onClick={handleDelete} disabled={deleteLoading} className="btn btn-danger" style={{ flex: 1 }}>
+                {deleteLoading ? <><span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> Deleting...</> : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
+      </div>
     </MainLayout>
   );
 }

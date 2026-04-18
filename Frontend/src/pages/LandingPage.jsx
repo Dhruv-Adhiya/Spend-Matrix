@@ -1,5 +1,6 @@
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useEffect, useRef, useState } from 'react';
 
 const features = [
   { icon: '💸', title: 'Track Every Transaction', desc: 'Log income and expenses instantly. Filter, search, and export your full transaction history anytime.' },
@@ -29,6 +30,68 @@ const mockTx = [
   { name: 'Netflix', cat: 'Entertainment', amount: '-₹15.99', red: true },
 ];
 
+function useCountUpOnVisible(target) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          // parse numeric part from strings like "10K+", "500+", "99.9%", "0"
+          const numeric = parseFloat(target.replace(/[^0-9.]/g, ''));
+          if (!numeric) { setCount(target); return; }
+          const suffix = target.replace(/[0-9.]/g, '');
+          let start = 0;
+          const duration = 1200;
+          const step = numeric / (duration / 16);
+          const timer = setInterval(() => {
+            start += step;
+            if (start >= numeric) {
+              setCount(target);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(start * 10) / 10 + suffix);
+            }
+          }, 16);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [target]);
+
+  return { ref, count };
+}
+
+function StatItem({ value, label }) {
+  const { ref, count } = useCountUpOnVisible(value);
+  return (
+    <div ref={ref} style={{ textAlign: 'center' }}>
+      <p style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 800, fontSize: '2.75rem', color: '#fff' }}>
+        {count || '0'}
+      </p>
+      <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.875rem', color: 'rgba(255,255,255,0.70)', marginTop: 4 }}>{label}</p>
+    </div>
+  );
+}
+
+function StatsBar() {
+  return (
+    <section style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #6D28D9 100%)', padding: '52px 24px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', width: 300, height: 300, border: '2px solid rgba(255,255,255,0.1)', borderRadius: '50%', top: -100, right: -60, pointerEvents: 'none' }} />
+      <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 32 }}>
+        {stats.map(s => <StatItem key={s.label} value={s.value} label={s.label} />)}
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   const { token, user } = useAuth();
   if (token) return <Navigate to={user?.role === 'admin' ? '/admin' : '/dashboard'} replace />;
@@ -46,7 +109,7 @@ export default function LandingPage() {
         boxShadow: '0 2px 20px rgba(0,0,0,0.05)',
       }}>
         <div style={{ maxWidth: 1152, margin: '0 auto', padding: '0 24px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="page-enter" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, animation: 'fadeInLeft 0.4s ease both' }}>
             <span style={{ fontSize: 24 }}>💰</span>
             <span className="gradient-text" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 800, fontSize: '1.25rem' }}>Spend Matrix</span>
           </div>
@@ -86,13 +149,13 @@ export default function LandingPage() {
             color: '#4F46E5', borderRadius: 999, padding: '6px 14px',
             fontFamily: '"DM Sans", sans-serif', fontWeight: 600, fontSize: '0.75rem',
             textTransform: 'uppercase', letterSpacing: '0.06em',
-            animation: 'fadeInUp 0.3s ease both',
+            animation: 'fadeInUp 0s ease both',
           }}>✨ Personal Finance Made Simple</span>
 
           <h1 style={{
             fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 800,
             lineHeight: 1.15, marginBottom: 20,
-            animation: 'fadeInUp 0.38s ease both',
+            animation: 'fadeInUp 0.08s ease both',
           }}>
             <span style={{ fontSize: '3.5rem', color: '#111827', display: 'block' }}>Let's Start Tracking</span>
             <span className="gradient-text" style={{ fontSize: '3.5rem', display: 'block' }}>Your Transactions</span>
@@ -101,13 +164,17 @@ export default function LandingPage() {
           <p style={{
             fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '1.0625rem', color: '#6B7280',
             maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
-            animation: 'fadeInUp 0.46s ease both',
+            animation: 'fadeInUp 0.16s ease both',
           }}>
             Spend Matrix gives you a crystal-clear picture of where your money goes — with smart budgets, visual analytics, and real-time alerts all in one place.
           </p>
 
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap', animation: 'fadeInUp 0.52s ease both' }}>
-            <Link to="/register" className="btn btn-primary" style={{ padding: '14px 32px', fontSize: '1rem', textDecoration: 'none', boxShadow: '0 6px 20px rgba(79,70,229,0.35)' }}>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap', animation: 'fadeInUp 0.22s ease both' }}>
+            <Link to="/register" className="btn btn-primary"
+              style={{ padding: '14px 32px', fontSize: '1rem', textDecoration: 'none', boxShadow: '0 6px 20px rgba(79,70,229,0.35)', transition: 'all 0.2s ease' }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(79,70,229,0.5)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 6px 20px rgba(79,70,229,0.35)'; }}
+            >
               Get Started →
             </Link>
             <Link to="/login" className="btn btn-secondary" style={{ padding: '14px 32px', fontSize: '1rem', textDecoration: 'none' }}>
@@ -150,8 +217,8 @@ export default function LandingPage() {
           <div style={{ padding: '0 16px 16px' }}>
             <div style={{ background: '#F8FAFF', borderRadius: 12, padding: '14px 16px' }}>
               <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 600, fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Recent Transactions</p>
-              {mockTx.map(tx => (
-                <div key={tx.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #E5E7EB' }}>
+              {mockTx.map((tx, i) => (
+                <div key={tx.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < mockTx.length - 1 ? '1px solid #E5E7EB' : 'none' }}>
                   <div>
                     <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: 13, color: '#111827' }}>{tx.name}</p>
                     <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 11, color: '#9CA3AF' }}>{tx.cat}</p>
@@ -165,17 +232,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Stats Bar ── */}
-      <section style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #6D28D9 100%)', padding: '52px 24px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', width: 300, height: 300, border: '2px solid rgba(255,255,255,0.1)', borderRadius: '50%', top: -100, right: -60, pointerEvents: 'none' }} />
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 32 }}>
-          {stats.map(s => (
-            <div key={s.label} style={{ textAlign: 'center' }}>
-              <p style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 800, fontSize: '2.75rem', color: '#fff' }}>{s.value}</p>
-              <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.875rem', color: 'rgba(255,255,255,0.70)', marginTop: 4 }}>{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <StatsBar />
 
       {/* ── Features ── */}
       <section style={{ background: '#fff', padding: '88px 24px' }}>
@@ -280,7 +337,7 @@ export default function LandingPage() {
             >{l}</a>
           ))}
         </div>
-        <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 13, color: '#475569' }}>© {new Date().getFullYear()} Spend Matrix. All rights reserved.</p>
+        <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 13, color: '#475569' }}>© 2026 Spend Matrix. All rights reserved.</p>
       </footer>
     </div>
   );

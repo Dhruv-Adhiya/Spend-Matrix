@@ -5,15 +5,21 @@ import TransactionList from '../components/TransactionList';
 import { dashboardAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
+const shimmerStyle = {
+  background: 'linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%)',
+  backgroundSize: '200% 100%',
+  animation: 'shimmer 1.5s infinite',
+};
+
 function SkeletonCard() {
   return (
-    <div className="skeleton" style={{ height: 110, borderRadius: 16 }} />
+    <div style={{ height: 110, borderRadius: 16, ...shimmerStyle }} />
   );
 }
 
 function SkeletonRow() {
   return (
-    <div className="skeleton" style={{ height: 52, borderRadius: 8 }} />
+    <div style={{ height: 52, borderRadius: 8, ...shimmerStyle }} />
   );
 }
 
@@ -60,7 +66,7 @@ export default function Dashboard() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
               <SkeletonCard /><SkeletonCard /><SkeletonCard />
             </div>
-            <div className="card" style={{ padding: 20 }}>
+            <div style={{ background: '#fff', borderRadius: 16, padding: 20, marginTop: 8 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[...Array(6)].map((_, i) => <SkeletonRow key={i} />)}
               </div>
@@ -76,7 +82,8 @@ export default function Dashboard() {
             color: '#DC2626', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.9rem',
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
-            ⚠️ {error}
+            <span style={{ flexShrink: 0 }}>⚠️</span>
+            <span>{error}</span>
           </div>
         )}
 

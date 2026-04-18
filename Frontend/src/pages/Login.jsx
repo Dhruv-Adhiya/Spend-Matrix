@@ -51,7 +51,7 @@ function ErrorAlert({ msg }) {
       borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 14px',
       color: '#DC2626', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem',
       marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8,
-    }}>⚠️ {msg}</div>
+    }}><span style={{ flexShrink: 0 }}>⚠️</span><span>{msg}</span></div>
   );
 }
 
@@ -133,7 +133,7 @@ export default function Login() {
         </form>
 
         {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '4px 0' }}>
           <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #E5E7EB' }} />
           <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.875rem', color: '#9CA3AF' }}>or</span>
           <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #E5E7EB' }} />

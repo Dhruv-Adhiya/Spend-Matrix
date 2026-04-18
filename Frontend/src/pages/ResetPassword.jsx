@@ -45,8 +45,8 @@ function AuthCard({ children }) {
 function ErrorAlert({ msg }) {
   if (!msg) return null;
   return (
-    <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 14px', color: '#DC2626', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', marginBottom: 16, display: 'flex', gap: 8 }}>
-      ⚠️ {msg}
+    <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 14px', color: '#DC2626', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+      <span style={{ flexShrink: 0 }}>⚠️</span><span>{msg}</span>
     </div>
   );
 }
@@ -61,7 +61,7 @@ function getStrength(pw) {
 const strengthColors = ['', '#EF4444', '#F97316', '#F59E0B', '#10B981'];
 const strengthLabels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
 
-function PasswordInput({ label, name, value, onChange, error, showStrength }) {
+function PasswordInput({ label, name, value, onChange, error, showStrength, placeholder }) {
   const [show, setShow] = useState(false);
   const [focused, setFocused] = useState(false);
   const s = getStrength(value);
@@ -73,7 +73,7 @@ function PasswordInput({ label, name, value, onChange, error, showStrength }) {
           className={`input${error ? ' error' : ''}`}
           type={show ? 'text' : 'password'}
           name={name} value={value} onChange={onChange}
-          placeholder="Min. 6 characters"
+          placeholder={placeholder || 'Min. 6 characters'}
           style={{ paddingRight: 42, borderColor: focused && !error ? '#4F46E5' : undefined, boxShadow: focused && !error ? '0 0 0 3px rgba(79,70,229,0.15)' : undefined }}
           onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
         />
@@ -87,7 +87,7 @@ function PasswordInput({ label, name, value, onChange, error, showStrength }) {
         <div style={{ marginTop: 6 }}>
           <div style={{ display: 'flex', gap: 3 }}>
             {[1, 2, 3, 4].map(i => (
-              <div key={i} style={{ flex: 1, height: 4, borderRadius: 999, background: i <= s ? strengthColors[s] : '#E5E7EB', transition: 'background 0.3s' }} />
+              <div key={i} style={{ flex: 1, height: 4, borderRadius: 999, background: i <= s ? strengthColors[s] : '#E5E7EB', transition: 'background-color 0.3s ease' }} />
             ))}
           </div>
           <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.75rem', color: strengthColors[s], textAlign: 'right', marginTop: 3 }}>{strengthLabels[s]}</p>
@@ -149,7 +149,9 @@ export default function ResetPassword() {
         {success ? (
           <div style={{ textAlign: 'center' }}>
             <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', animation: 'countUp 0.4s ease' }}>
-              <span style={{ fontSize: 30, color: '#059669' }}>✓</span>
+              <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                <path d="M6 15l6 6 12-12" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
             <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 700, fontSize: '1.25rem', color: '#111827' }}>Password Updated!</h2>
             <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.875rem', color: '#6B7280', marginTop: 8 }}>Your password has been changed successfully.</p>
@@ -161,9 +163,10 @@ export default function ResetPassword() {
             <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.875rem', color: '#6B7280', marginBottom: 28 }}>Choose a new password for your account.</p>
             <ErrorAlert msg={error} />
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }} noValidate>
-              <PasswordInput label="New Password" name="newPassword" value={form.newPassword} onChange={handleChange} showStrength />
+              <PasswordInput label="New Password" name="newPassword" value={form.newPassword} onChange={handleChange} placeholder="Min. 6 characters" showStrength />
               <PasswordInput
                 label="Confirm Password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange}
+                placeholder="Repeat new password"
                 error={form.confirmPassword && form.newPassword !== form.confirmPassword ? 'Passwords do not match' : ''}
               />
               <button type="submit" disabled={loading} className="btn btn-primary" style={{ height: 48, width: '100%' }}>

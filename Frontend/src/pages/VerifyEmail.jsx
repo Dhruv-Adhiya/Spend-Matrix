@@ -61,7 +61,7 @@ export default function VerifyEmail() {
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
               <span className="spinner" style={{ width: 48, height: 48, borderWidth: 4 }} />
             </div>
-            <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.9375rem', color: '#6B7280' }}>Verifying your email...</p>
+            <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.9375rem', color: '#6B7280', textAlign: 'center', marginTop: 16 }}>Verifying your email...</p>
           </>
         )}
 
@@ -94,7 +94,7 @@ export default function VerifyEmail() {
               <span style={{ fontSize: 36, color: '#D97706' }}>⚠️</span>
             </div>
             <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 700, fontSize: '1.5rem', color: '#111827' }}>Verification Failed</h2>
-            <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.875rem', color: '#6B7280', margin: '12px 0 24px' }}>{message}</p>
+            <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.875rem', color: '#6B7280', textAlign: 'center', margin: '12px 0 24px' }}>{message || 'This link has expired or is invalid.'}</p>
             <Link to="/login" className="btn btn-secondary" style={{ display: 'flex', height: 48, textDecoration: 'none', justifyContent: 'center', alignItems: 'center' }}>
               ← Back to Login
             </Link>

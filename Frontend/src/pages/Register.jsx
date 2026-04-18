@@ -44,8 +44,8 @@ function AuthCard({ children }) {
 function ErrorAlert({ msg }) {
   if (!msg) return null;
   return (
-    <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 14px', color: '#DC2626', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', marginBottom: 16, display: 'flex', gap: 8 }}>
-      ⚠️ {msg}
+    <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 14px', color: '#DC2626', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+      <span style={{ flexShrink: 0 }}>⚠️</span><span>{msg}</span>
     </div>
   );
 }
@@ -53,8 +53,8 @@ function ErrorAlert({ msg }) {
 function SuccessAlert({ msg }) {
   if (!msg) return null;
   return (
-    <div style={{ background: 'rgba(16,185,129,0.07)', border: '1.5px solid rgba(16,185,129,0.25)', borderLeft: '3px solid #10B981', borderRadius: 10, padding: '12px 14px', color: '#065F46', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', marginBottom: 16, display: 'flex', gap: 8 }}>
-      ✅ {msg}
+    <div style={{ background: 'rgba(16,185,129,0.07)', border: '1.5px solid rgba(16,185,129,0.25)', borderLeft: '3px solid #10B981', borderRadius: 10, padding: '12px 14px', color: '#065F46', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+      <span style={{ flexShrink: 0 }}>✅</span><span>{msg}</span>
     </div>
   );
 }
@@ -93,7 +93,7 @@ function PasswordStrengthBar({ password }) {
     <div style={{ marginTop: 6 }}>
       <div style={{ display: 'flex', gap: 3 }}>
         {[1, 2, 3, 4].map(i => (
-          <div key={i} style={{ flex: 1, height: 4, borderRadius: 999, background: i <= s ? strengthColors[s] : '#E5E7EB', transition: 'background 0.3s ease' }} />
+          <div key={i} style={{ flex: 1, height: 4, borderRadius: 999, background: i <= s ? strengthColors[s] : '#E5E7EB', transition: 'background-color 0.3s ease' }} />
         ))}
       </div>
       <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.75rem', color: strengthColors[s], textAlign: 'right', marginTop: 3 }}>{strengthLabels[s]}</p>

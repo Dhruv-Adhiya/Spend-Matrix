@@ -28,24 +28,36 @@ export default function Settings() {
 
   return (
     <MainLayout>
-      <h1 className="text-xl font-bold text-gray-800 mb-6">Settings</h1>
+      <div className="page-enter">
+      <h1 className="gradient-text" style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 700, fontSize: '1.5rem', marginBottom: 20 }}>Settings</h1>
 
-      {loading && (
-        <div className="flex items-center justify-center h-48 text-gray-400 text-sm">Loading...</div>
-      )}
-
-      {error && (
-        <div className="bg-red-50 text-red-600 text-sm rounded-lg px-4 py-3">{error}</div>
-      )}
+      {loading && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 192 }}><span className="spinner" /></div>}
+      {error && <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 16px', color: '#DC2626', fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem' }}>{error}</div>}
 
       {!loading && !error && (
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <SettingsTabs active={activeTab} onChange={setActiveTab} />
-          {activeTab === 'Profile' && <ProfileForm initialData={profile} />}
-          {activeTab === 'Password' && <PasswordForm />}
-          {activeTab === 'Preferences' && <PreferencesForm initialData={preferences} />}
+        <div className="card" style={{ padding: 0, borderRadius: 16, overflow: 'hidden' }}>
+          {/* Tab bar */}
+          <div style={{ display: 'flex', borderBottom: '2px solid #E5E7EB', padding: '0 24px', gap: 0 }}>
+            {['Profile','Password','Preferences'].map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)}
+                style={{ padding: '14px 20px', fontFamily: '"DM Sans",sans-serif', fontWeight: activeTab === tab ? 600 : 500, fontSize: '0.9375rem', cursor: 'pointer', border: 'none', background: 'transparent', color: activeTab === tab ? '#4F46E5' : '#6B7280', position: 'relative', transition: 'color 0.15s' }}
+                onMouseEnter={e => { if (activeTab !== tab) e.currentTarget.style.color = '#4F46E5'; }}
+                onMouseLeave={e => { if (activeTab !== tab) e.currentTarget.style.color = '#6B7280'; }}
+              >
+                {tab}
+                {activeTab === tab && <span style={{ position: 'absolute', bottom: -2, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#4F46E5,#8B5CF6)', borderRadius: '3px 3px 0 0' }} />}
+              </button>
+            ))}
+          </div>
+          {/* Tab content */}
+          <div style={{ padding: '28px 24px', animation: 'fadeInUp 0.25s ease both' }}>
+            {activeTab === 'Profile' && <ProfileForm initialData={profile} />}
+            {activeTab === 'Password' && <PasswordForm />}
+            {activeTab === 'Preferences' && <PreferencesForm initialData={preferences} />}
+          </div>
         </div>
       )}
+      </div>
     </MainLayout>
   );
 }

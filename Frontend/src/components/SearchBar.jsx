@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Search } from 'lucide-react';
 
 export default function SearchBar({ onSearch }) {
   const [value, setValue] = useState('');
@@ -11,27 +12,30 @@ export default function SearchBar({ onSearch }) {
   }, [value]);
 
   return (
-    <div className="relative flex-1 min-w-[200px]">
-      <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 pointer-events-none">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-        </svg>
+    <div style={{ position: 'relative', width: 220, flexShrink: 0 }}>
+      <span style={{
+        position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+        color: '#9CA3AF', pointerEvents: 'none', display: 'flex',
+      }}>
+        <Search size={16} />
       </span>
       <input
         type="text"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Search by description…"
-        className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+        onChange={e => setValue(e.target.value)}
+        placeholder="Search transactions..."
+        className="input"
+        style={{ paddingLeft: 38, paddingRight: value ? 32 : undefined }}
       />
       {value && (
         <button
           onClick={() => setValue('')}
-          className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
-        >
-          ✕
-        </button>
+          style={{
+            position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: '#9CA3AF', fontSize: 14, lineHeight: 1,
+          }}
+        >✕</button>
       )}
     </div>
   );
