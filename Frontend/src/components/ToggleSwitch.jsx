@@ -1,20 +1,47 @@
 export default function ToggleSwitch({ checked, onChange, disabled }) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-        checked ? 'bg-indigo-600' : 'bg-gray-300'
-      }`}
+    <label
+      style={{
+        display: 'inline-flex', alignItems: 'center',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        position: 'relative',
+      }}
     >
-      <span
-        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
-          checked ? 'translate-x-4' : 'translate-x-1'
-        }`}
+      {/* Hidden accessible checkbox */}
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={e => !disabled && onChange(e.target.checked)}
+        disabled={disabled}
+        style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
       />
-    </button>
+
+      {/* Track */}
+      <div
+        style={{
+          width: 48, height: 26, borderRadius: 999,
+          position: 'relative',
+          background: checked
+            ? 'linear-gradient(135deg, #4F46E5, #7C3AED)'
+            : '#D1D5DB',
+          transition: 'background-color 0.2s ease',
+          opacity: disabled ? 0.5 : 1,
+          boxShadow: 'none',
+          outline: 'none',
+        }}
+      >
+        {/* Thumb */}
+        <div
+          style={{
+            width: 20, height: 20, borderRadius: '50%',
+            background: '#fff',
+            position: 'absolute', top: 3,
+            left: checked ? 25 : 3,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+            transition: 'left 0.2s cubic-bezier(0.34,1.56,0.64,1)',
+          }}
+        />
+      </div>
+    </label>
   );
 }

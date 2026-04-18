@@ -1,14 +1,26 @@
+import { useState } from 'react';
+
 export default function Input({ label, error, ...props }) {
+  const [focused, setFocused] = useState(false);
+
   return (
-    <div className="flex flex-col gap-1">
-      {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {label && <label className="input-label">{label}</label>}
       <input
-        className={`w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition ${
-          error ? 'border-red-500' : 'border-gray-300'
-        }`}
+        className={`input${error ? ' error' : ''}`}
+        style={{
+          borderColor: focused && !error ? '#4F46E5' : undefined,
+          boxShadow: focused && !error
+            ? '0 0 0 3px rgba(79,70,229,0.15)'
+            : focused && error
+            ? '0 0 0 3px rgba(239,68,68,0.12)'
+            : undefined,
+        }}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         {...props}
       />
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="input-error">{error}</p>}
     </div>
   );
 }

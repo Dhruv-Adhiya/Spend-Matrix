@@ -1,3 +1,302 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --color-primary:       #4F46E5;
+  --color-primary-light: #818CF8;
+  --color-primary-dark:  #3730A3;
+  --color-primary-bg:    #EEF2FF;
+
+  --color-green:   #10B981;
+  --color-red:     #EF4444;
+  --color-yellow:  #F59E0B;
+  --color-blue:    #3B82F6;
+  --color-violet:  #8B5CF6;
+
+  --color-bg:       #F8FAFF;
+  --color-surface:  #FFFFFF;
+  --color-border:   #E5E7EB;
+  --color-muted:    #9CA3AF;
+  --color-text:     #111827;
+  --color-text-sub: #6B7280;
+
+  --glass-bg:     rgba(255,255,255,0.7);
+  --glass-border: rgba(255,255,255,0.5);
+
+  --shadow-card:  0 4px 24px rgba(79,70,229,0.08);
+  --shadow-hover: 0 8px 40px rgba(79,70,229,0.18);
+  --shadow-glow:  0 0 40px rgba(79,70,229,0.20);
+}
+
+/* Dark mode */
+[data-theme="dark"] {
+  --color-bg:       #0F172A;
+  --color-surface:  #1E293B;
+  --color-border:   #334155;
+  --color-muted:    #64748B;
+  --color-text:     #F1F5F9;
+  --color-text-sub: #94A3B8;
+  --glass-bg:       rgba(30,41,59,0.7);
+  --glass-border:   rgba(255,255,255,0.08);
+}
+
+/* ─── Base ──────────────────────────────────────────────────── */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* ─── Gradient Text ─────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #4F46E5 0%, #8B5CF6 50%, #3B82F6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Dot-Matrix Pattern ────────────────────────────────────── */
+.dot-matrix {
+  background-image: radial-gradient(circle, rgba(79,70,229,0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ─── Animated Background Blobs ────────────────────────────── */
+.blob-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+}
+.blob-1 {
+  width: 500px; height: 500px;
+  top: -80px; right: -60px;
+  background: rgba(79,70,229,0.10);
+  animation: float 7s infinite alternate;
+}
+.blob-2 {
+  width: 400px; height: 400px;
+  bottom: -100px; left: -80px;
+  background: rgba(139,92,246,0.10);
+  filter: blur(60px);
+  animation: float 9s infinite alternate-reverse;
+}
+.blob-3 {
+  width: 250px; height: 250px;
+  top: 40%; right: 15%;
+  background: rgba(59,130,246,0.08);
+  filter: blur(50px);
+  animation: float 6s 2s infinite alternate;
+}
+
+/* ─── Animations ────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes float {
+  from { transform: translateY(0px) rotate(0deg); }
+  to   { transform: translateY(-22px) rotate(4deg); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,0.3); }
+  50%       { box-shadow: 0 0 0 10px rgba(79,70,229,0); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Page mount */
+.page-enter { animation: fadeInUp 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* Staggered list */
+.stagger-item:nth-child(1) { animation-delay: 0.05s; }
+.stagger-item:nth-child(2) { animation-delay: 0.10s; }
+.stagger-item:nth-child(3) { animation-delay: 0.15s; }
+.stagger-item:nth-child(4) { animation-delay: 0.20s; }
+.stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.stagger-item:nth-child(6) { animation-delay: 0.30s; }
+
+/* ─── Button System ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  text-decoration: none;
+}
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+.btn-primary {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(79,70,229,0.35);
+}
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 8px 20px rgba(79,70,229,0.5);
+  transform: translateY(-1px);
+}
+.btn-primary:active:not(:disabled) { transform: translateY(0); box-shadow: 0 4px 14px rgba(79,70,229,0.35); }
+
+.btn-secondary {
+  background: #fff;
+  border: 2px solid #E5E7EB;
+  color: #4F46E5;
+}
+.btn-secondary:hover:not(:disabled) { border-color: #4F46E5; background: #EEF2FF; }
+
+.btn-danger {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(239,68,68,0.35);
+}
+.btn-danger:hover:not(:disabled) {
+  box-shadow: 0 8px 20px rgba(239,68,68,0.5);
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  width: 36px; height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(79,70,229,0.08);
+  color: #4F46E5;
+}
+.btn-icon:hover:not(:disabled) { background: rgba(79,70,229,0.14); }
+
+/* ─── Input System ──────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: 11px 14px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  background: #FAFBFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  color: var(--color-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.input:focus {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+}
+.input.error {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
+}
+.input-label {
+  display: block;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+.input-error {
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #EF4444;
+  margin-top: 4px;
+}
+
+/* ─── Card System ───────────────────────────────────────────── */
+.card {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.6);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+}
+.card-hover {
+  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(79,70,229,0.16);
+}
+
+/* ─── Loading Spinner ───────────────────────────────────────── */
+.spinner {
+  width: 32px; height: 32px;
+  border: 3.5px solid rgba(79,70,229,0.15);
+  border-top-color: #4F46E5;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+.spinner-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+}
+
+/* ─── Status Badges ─────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 3px 10px;
+  border-width: 1px;
+  border-style: solid;
+}
+.badge-income   { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
+.badge-expense  { background: #FEF2F2; color: #991B1B; border-color: #FECACA; }
+.badge-warning  { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
+.badge-info     { background: #EFF6FF; color: #1E40AF; border-color: #BFDBFE; }
+.badge-admin    { background: #F5F3FF; color: #5B21B6; border-color: #DDD6FE; }
+
+/* ─── Skeleton Shimmer ──────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+
+/* ─── Budget Bar Animation ──────────────────────────────────── */
+.budget-bar {
+  transition: width 0.8s ease;
+  animation: fadeInLeft 0.8s ease both;
+}

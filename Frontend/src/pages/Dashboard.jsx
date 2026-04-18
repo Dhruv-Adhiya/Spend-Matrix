@@ -5,8 +5,17 @@ import TransactionList from '../components/TransactionList';
 import { dashboardAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-const toTitleCase = (str) =>
-  str?.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()) || '';
+function SkeletonCard() {
+  return (
+    <div className="skeleton" style={{ height: 110, borderRadius: 16 }} />
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <div className="skeleton" style={{ height: 52, borderRadius: 8 }} />
+  );
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -15,46 +24,81 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    dashboardAPI
-      .getData()
-      .then((res) => setData(res.data.data))
-      .catch((err) => {
-        if (err.response?.status !== 401) {
+    dashboardAPI.getData()
+      .then(res => setData(res.data.data))
+      .catch(err => {
+        if (err.response?.status !== 401)
           setError(err.response?.data?.message || 'Failed to load dashboard data.');
-        }
       })
       .finally(() => setLoading(false));
   }, []);
 
+  const firstName = user?.full_name?.split(' ')[0] || '';
+  const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
   return (
     <MainLayout>
-      <h1 className="text-xl font-bold text-gray-800 mb-6">
-        {user?.full_name ? `Welcome, ${toTitleCase(user.full_name)}` : 'Dashboard'}
-      </h1>
+      <div className="page-enter">
 
-      {loading && (
-        <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
-          Loading...
-        </div>
-      )}
-
-      {error && (
-        <div className="bg-red-50 text-red-600 text-sm rounded-lg px-4 py-3 mb-6">
-          {error}
-        </div>
-      )}
-
-      {!loading && !error && data && (
-        <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <SummaryCard title="Total Balance" amount={data.balance} type="balance" />
-            <SummaryCard title="Total Income" amount={data.totalIncome} type="income" />
-            <SummaryCard title="Total Expense" amount={data.totalExpense} type="expense" />
+        {/* Page header */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
+          <div>
+            <h1 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 700, fontSize: '1.5rem', color: '#111827' }}>
+              Welcome,{' '}
+              <span className="gradient-text">{firstName}</span>
+              {' '}👋
+            </h1>
+            <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.875rem', color: '#9CA3AF', marginTop: 2 }}>
+              {today}
+            </p>
           </div>
-
-          <TransactionList transactions={data.recentTransactions} />
         </div>
-      )}
+
+        {/* Loading skeleton */}
+        {loading && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+              <SkeletonCard /><SkeletonCard /><SkeletonCard />
+            </div>
+            <div className="card" style={{ padding: 20 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {[...Array(6)].map((_, i) => <SkeletonRow key={i} />)}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error state */}
+        {error && (
+          <div style={{
+            background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)',
+            borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '14px 16px',
+            color: '#DC2626', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.9rem',
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* Content */}
+        {!loading && !error && data && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+              <div style={{ animation: 'fadeInUp 0.3s ease both', animationDelay: '0s' }}>
+                <SummaryCard title="Total Balance" amount={data.balance} type="balance" />
+              </div>
+              <div style={{ animation: 'fadeInUp 0.3s ease both', animationDelay: '0.08s' }}>
+                <SummaryCard title="Total Income" amount={data.totalIncome} type="income" />
+              </div>
+              <div style={{ animation: 'fadeInUp 0.3s ease both', animationDelay: '0.16s' }}>
+                <SummaryCard title="Total Expense" amount={data.totalExpense} type="expense" />
+              </div>
+            </div>
+            <TransactionList transactions={data.recentTransactions} />
+          </div>
+        )}
+
+      </div>
     </MainLayout>
   );
 }
