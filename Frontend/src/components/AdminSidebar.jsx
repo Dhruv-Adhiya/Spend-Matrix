@@ -38,7 +38,7 @@ export default function AdminSidebar({ active, onChange }) {
       ))}
 
       {/* Bottom card */}
-      <div style={{ marginTop: 'auto', marginTop: 'auto' }}>
+      <div style={{ marginTop: 'auto' }}>
         <div style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)', borderRadius: 12, padding: 14 }}>
           <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.75rem', color: '#fff' }}>🛡️ Admin Mode</p>
           <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 400, fontSize: '0.6875rem', color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>Manage users and monitor all transactions.</p>

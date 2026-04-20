@@ -11,16 +11,6 @@ import {
   toggleRecurring,
 } from '../services/recurringService';
 
-const Spinner = () => (
-  <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
-    <svg className="animate-spin w-5 h-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-    </svg>
-    Loading…
-  </div>
-);
-
 export default function Recurring() {
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -133,32 +123,32 @@ export default function Recurring() {
       ) : (
         <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 16 }}>
           {/* Table header */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 130px 110px 110px 120px 90px 80px', alignItems: 'center', padding: '12px 20px', background: 'rgba(79,70,229,0.04)', borderBottom: '1.5px solid rgba(79,70,229,0.08)' }}>
+          <div className="tx-header" style={{ display: 'grid', gridTemplateColumns: '1fr 130px 110px 110px 120px 90px 80px', alignItems: 'center', padding: '12px 20px', background: 'rgba(79,70,229,0.04)', borderBottom: '1.5px solid rgba(79,70,229,0.08)' }}>
             {['NAME','CATEGORY','FREQUENCY','AMOUNT','NEXT DATE','STATUS','ACTIONS'].map(c => (
               <span key={c} style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.75rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c}</span>
             ))}
           </div>
           {/* Rows */}
           {rules.map((rule, i) => (
-            <div key={rule.id}
-              style={{ display: 'grid', gridTemplateColumns: '1fr 130px 110px 110px 120px 90px 80px', alignItems: 'center', padding: '14px 20px', borderBottom: i < rules.length-1 ? '1px solid #F3F4F6' : 'none', transition: 'background 0.15s ease', animation: 'fadeInUp 0.3s ease both', animationDelay: `${i*0.04}s` }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.025)'; e.currentTarget.querySelector('.rec-actions').style.opacity = '1'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.querySelector('.rec-actions').style.opacity = '0'; }}
+            <div key={rule.id} className="tx-row"
+              style={{ display: 'grid', gridTemplateColumns: '1fr 130px 110px 110px 120px 90px 80px', alignItems: 'center', padding: '14px 20px', borderBottom: i < rules.length-1 ? '1px solid var(--color-border)' : 'none', transition: 'background 0.15s ease', animation: 'fadeInUp 0.3s ease both', animationDelay: `${i*0.04}s` }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.025)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = ''; }}
             >
               {/* Name */}
               <div>
-                <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.9375rem', color: '#111827' }}>{rule.name}</p>
+                <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-text)' }}>{rule.name}</p>
                 {rule.description && <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.8rem', color: '#9CA3AF' }}>{rule.description}</p>}
               </div>
               {/* Category */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4F46E5', flexShrink: 0 }} />
-                <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#374151' }}>{rule.category_name || '—'}</span>
+                <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: 'var(--color-text-sub)' }}>{rule.category_name || '—'}</span>
               </div>
               {/* Frequency badge */}
               {(() => {
                 const freq = { monthly: { bg:'#EEF2FF',color:'#4F46E5',border:'#C7D2FE' }, weekly: { bg:'#ECFDF5',color:'#059669',border:'#A7F3D0' }, daily: { bg:'#FFFBEB',color:'#D97706',border:'#FDE68A' }, yearly: { bg:'#F5F3FF',color:'#7C3AED',border:'#DDD6FE' } }[rule.frequency] || { bg:'#F3F4F6',color:'#6B7280',border:'#E5E7EB' };
-                return <span style={{ display:'inline-flex', alignItems:'center', fontFamily:'"DM Sans",sans-serif', fontWeight:600, fontSize:'0.75rem', borderRadius:999, padding:'3px 10px', border:'1px solid', background:freq.bg, color:freq.color, borderColor:freq.border }}>{rule.frequency}</span>;
+                return <span style={{ display:'inline-flex', alignItems:'center', width:'fit-content', fontFamily:'"DM Sans",sans-serif', fontWeight:600, fontSize:'0.7rem', borderRadius:999, padding:'2px 6px', border:'1px solid', background:freq.bg, color:freq.color, borderColor:freq.border }}>{rule.frequency}</span>;
               })()}
               {/* Amount */}
               <span style={{ fontFamily: '"JetBrains Mono",monospace', fontWeight: 600, fontSize: '0.9375rem', color: rule.type === 'income' ? '#059669' : '#DC2626' }}>
@@ -180,7 +170,7 @@ export default function Recurring() {
                 <span style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.7rem', color: rule.is_active ? '#059669' : '#9CA3AF' }}>{rule.is_active ? 'Active' : 'Paused'}</span>
               </div>
               {/* Actions */}
-              <div className="rec-actions" style={{ display: 'flex', gap: 4, opacity: 0, transition: 'opacity 0.15s' }}>
+              <div className="rec-actions" style={{ display: 'flex', gap: 4 }}>
                 <button onClick={() => openEdit(rule)} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF' }}
                   onMouseEnter={e => e.currentTarget.style.color = '#4F46E5'} onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -207,12 +197,12 @@ export default function Recurring() {
       {deleteTarget && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
           onClick={() => setDeleteTarget(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, width: 380, maxWidth: '100%', padding: 28, boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both', textAlign: 'center' }}
+          <div className="modal-content" style={{ background: '#fff', borderRadius: 20, width: 380, maxWidth: '100%', padding: 28, boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both', textAlign: 'center' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', animation: 'countUp 0.3s ease' }}>
               <span style={{ fontSize: 28, color: '#D97706' }}>⚠️</span>
             </div>
-            <h3 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: '#111827' }}>Delete Recurring Rule?</h3>
+            <h3 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: 'var(--color-text)' }}>Delete Recurring Rule?</h3>
             <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#6B7280', lineHeight: 1.6, marginTop: 8 }}>This will stop all future automatic transactions for this rule. Existing transactions will not be affected.</p>
             <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
               <button onClick={() => setDeleteTarget(null)} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>

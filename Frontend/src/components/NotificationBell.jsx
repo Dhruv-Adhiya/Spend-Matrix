@@ -90,7 +90,7 @@ export default function NotificationBell() {
 
       {/* Dropdown */}
       {open && (
-        <div style={{
+        <div className="notif-dropdown" style={{
           position: 'absolute', right: 0, top: 44, zIndex: 200,
           width: 340,
           background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)',
@@ -100,8 +100,8 @@ export default function NotificationBell() {
           overflow: 'hidden',
         }}>
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #F3F4F6' }}>
-            <span style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 600, fontSize: '0.9375rem', color: '#111827' }}>Notifications</span>
+          <div className="notif-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #F3F4F6' }}>
+            <span className="notif-title" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 600, fontSize: '0.9375rem', color: '#111827' }}>Notifications</span>
             {unreadCount > 0 && (
               <button onClick={markAllRead} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.8rem', color: '#4F46E5' }}
                 onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
@@ -120,7 +120,7 @@ export default function NotificationBell() {
             notifications.map(n => {
               const { bg, icon } = notifIcon(n.type);
               return (
-                <div key={n.id} style={{
+                <div key={n.id} className={`notif-item ${n.is_read ? 'notif-item-read' : 'notif-item-unread'}`} style={{
                   display: 'flex', alignItems: 'flex-start', gap: 10,
                   padding: '10px 16px',
                   borderBottom: '1px solid #F3F4F6',
@@ -129,9 +129,9 @@ export default function NotificationBell() {
                 }}>
                   <div style={{ width: 32, height: 32, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>{icon}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 600, fontSize: '0.875rem', color: '#111827' }}>{n.title}</p>
-                    <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.8125rem', color: '#6B7280', lineHeight: 1.4, marginTop: 2 }}>{n.message}</p>
-                    <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>{timeAgo(n.created_at)}</p>
+                    <p className="notif-item-title" style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 600, fontSize: '0.875rem', color: '#111827' }}>{n.title}</p>
+                    <p className="notif-item-message" style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.8125rem', color: '#6B7280', lineHeight: 1.4, marginTop: 2 }}>{n.message}</p>
+                    <p className="notif-item-time" style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>{timeAgo(n.created_at)}</p>
                   </div>
                 </div>
               );
@@ -139,7 +139,7 @@ export default function NotificationBell() {
           )}
 
           {/* Footer */}
-          <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6', textAlign: 'center' }}>
+          <div className="notif-footer" style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6', textAlign: 'center' }}>
             <Link to="/notifications" onClick={() => setOpen(false)} style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', color: '#4F46E5', textDecoration: 'none' }}
               onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
               onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}

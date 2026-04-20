@@ -85,7 +85,7 @@ function StatsBar() {
   return (
     <section style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #6D28D9 100%)', padding: '52px 24px', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', width: 300, height: 300, border: '2px solid rgba(255,255,255,0.1)', borderRadius: '50%', top: -100, right: -60, pointerEvents: 'none' }} />
-      <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 32 }}>
+      <div className="grid-stats" style={{ maxWidth: 900, margin: '0 auto' }}>
         {stats.map(s => <StatItem key={s.label} value={s.value} label={s.label} />)}
       </div>
     </section>
@@ -139,7 +139,7 @@ export default function LandingPage() {
           <div className="blob blob-3" />
         </div>
         {/* Dot matrix */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.08) 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.4, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.6, pointerEvents: 'none' }} />
 
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
@@ -149,13 +149,13 @@ export default function LandingPage() {
             color: '#4F46E5', borderRadius: 999, padding: '6px 14px',
             fontFamily: '"DM Sans", sans-serif', fontWeight: 600, fontSize: '0.75rem',
             textTransform: 'uppercase', letterSpacing: '0.06em',
-            animation: 'fadeInUp 0s ease both',
+            animation: 'fadeInUp 0.35s ease both',
           }}>✨ Personal Finance Made Simple</span>
 
           <h1 style={{
             fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 800,
             lineHeight: 1.15, marginBottom: 20,
-            animation: 'fadeInUp 0.08s ease both',
+            animationDelay: '0.08s', animation: 'fadeInUp 0.35s ease both',
           }}>
             <span style={{ fontSize: '3.5rem', color: '#111827', display: 'block' }}>Let's Start Tracking</span>
             <span className="gradient-text" style={{ fontSize: '3.5rem', display: 'block' }}>Your Transactions</span>
@@ -164,12 +164,12 @@ export default function LandingPage() {
           <p style={{
             fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '1.0625rem', color: '#6B7280',
             maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
-            animation: 'fadeInUp 0.16s ease both',
+            animationDelay: '0.16s', animation: 'fadeInUp 0.35s ease both',
           }}>
             Spend Matrix gives you a crystal-clear picture of where your money goes — with smart budgets, visual analytics, and real-time alerts all in one place.
           </p>
 
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap', animation: 'fadeInUp 0.22s ease both' }}>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap', animationDelay: '0.22s', animation: 'fadeInUp 0.35s ease both' }}>
             <Link to="/register" className="btn btn-primary"
               style={{ padding: '14px 32px', fontSize: '1rem', textDecoration: 'none', boxShadow: '0 6px 20px rgba(79,70,229,0.35)', transition: 'all 0.2s ease' }}
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(79,70,229,0.5)'; }}
@@ -246,7 +246,7 @@ export default function LandingPage() {
               From daily expense logging to long-term financial planning — Spend Matrix has you covered.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 24 }}>
+          <div className="grid-features">
             {features.map((f, i) => (
               <div
                 key={f.title}
@@ -264,7 +264,7 @@ export default function LandingPage() {
 
       {/* ── How It Works ── */}
       <section style={{ background: 'linear-gradient(145deg, #F0F4FF 0%, #F5F0FF 100%)', padding: '88px 24px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.08) 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.4, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.6, pointerEvents: 'none' }} />
         <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 700, fontSize: '2rem', color: '#111827', display: 'inline-block', position: 'relative' }}>
@@ -272,7 +272,7 @@ export default function LandingPage() {
               <span style={{ position: 'absolute', bottom: -8, left: '50%', transform: 'translateX(-50%)', height: 3, width: 60, background: 'linear-gradient(90deg, #4F46E5, #8B5CF6)', borderRadius: 2, display: 'block' }} />
             </h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 40, position: 'relative' }}>
+          <div className="grid-steps" style={{ position: 'relative' }}>
             <div style={{ position: 'absolute', top: 30, left: '16%', right: '16%', borderTop: '2px dashed rgba(79,70,229,0.25)', pointerEvents: 'none' }} />
             {steps.map((s, i) => (
               <div key={s.step} style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', animationDelay: `${i * 0.1}s` }} className="stagger-item page-enter">

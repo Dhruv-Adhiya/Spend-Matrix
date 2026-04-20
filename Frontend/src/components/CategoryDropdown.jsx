@@ -60,8 +60,8 @@ export default function CategoryDropdown({ value, onChange, type, placeholder = 
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '11px 14px',
           fontFamily: '"DM Sans", sans-serif', fontSize: '0.9375rem',
-          background: '#FAFBFF', border: '1.5px solid #E5E7EB', borderRadius: 10,
-          color: selected ? '#111827' : '#9CA3AF',
+          background: 'var(--color-surface)', border: '1.5px solid var(--color-border)', borderRadius: 10,
+          color: selected ? 'var(--color-text)' : '#9CA3AF',
           cursor: 'pointer', transition: 'border-color 0.2s, box-shadow 0.2s',
           outline: 'none',
           ...(open ? { borderColor: '#4F46E5', boxShadow: '0 0 0 3px rgba(79,70,229,0.15)' } : {}),
@@ -80,13 +80,13 @@ export default function CategoryDropdown({ value, onChange, type, placeholder = 
       {open && (
         <div style={{
           position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 50,
-          background: '#fff', border: '1.5px solid rgba(79,70,229,0.15)',
+          background: 'var(--color-surface)', border: '1.5px solid rgba(79,70,229,0.15)',
           borderRadius: 12, boxShadow: '0 10px 40px rgba(0,0,0,0.12)',
           overflow: 'hidden', animation: 'fadeInUp 0.15s ease both',
           maxHeight: 260,
         }}>
           {/* Search */}
-          <div style={{ padding: '10px 12px', borderBottom: '1px solid #F3F4F6', background: '#FAFBFF' }}>
+          <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
             <input
               ref={searchRef}
               type="text"
@@ -95,7 +95,7 @@ export default function CategoryDropdown({ value, onChange, type, placeholder = 
               placeholder="Search categories..."
               style={{
                 width: '100%', border: 'none', outline: 'none', background: 'transparent',
-                fontFamily: '"DM Sans", sans-serif', fontSize: '0.875rem', color: '#111827',
+                fontFamily: '"DM Sans", sans-serif', fontSize: '0.875rem', color: 'var(--color-text)',
               }}
             />
           </div>
@@ -125,7 +125,7 @@ export default function CategoryDropdown({ value, onChange, type, placeholder = 
                     <span style={{ width: 8, height: 8, borderRadius: '50%', background: getCatColor(cat, idx), flexShrink: 0 }} />
                     <span style={{
                       fontFamily: '"DM Sans", sans-serif', fontSize: '0.875rem',
-                      color: isSelected ? '#4F46E5' : '#111827',
+                      color: isSelected ? '#4F46E5' : 'var(--color-text)',
                       fontWeight: isSelected ? 600 : 400,
                     }}>{cat.name}</span>
                   </div>

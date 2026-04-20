@@ -43,10 +43,9 @@ export default function TransactionList({ transactions }) {
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '16px 24px 12px',
-        marginBottom: 16,
-        borderBottom: '1px solid #F3F4F6',
+        borderBottom: '1px solid var(--color-border)',
       }}>
-        <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 600, fontSize: '1rem', color: '#111827' }}>
+        <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 600, fontSize: '1rem', color: 'var(--color-text)' }}>
           Recent Transactions
         </h2>
         <Link to="/transactions" style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.875rem', color: '#4F46E5', textDecoration: 'none' }}
@@ -65,7 +64,7 @@ export default function TransactionList({ transactions }) {
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '12px 0',
               margin: '0',
-              borderBottom: i < Math.min(transactions.length, 5) - 1 ? '1px solid #F3F4F6' : 'none',
+              borderBottom: i < Math.min(transactions.length, 5) - 1 ? '1px solid var(--color-border)' : 'none',
               animation: 'fadeInUp 0.3s ease both',
               animationDelay: `${i * 0.05}s`,
               cursor: 'default',
@@ -94,7 +93,7 @@ export default function TransactionList({ transactions }) {
 
             {/* Description + date */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.9375rem', color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 500, fontSize: '0.9375rem', color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {tx.note || tx.description || '—'}
               </p>
               <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: '0.8rem', color: '#9CA3AF', marginTop: 1 }}>

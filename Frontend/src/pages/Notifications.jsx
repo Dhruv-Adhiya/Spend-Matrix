@@ -126,17 +126,18 @@ export default function Notifications() {
             const { bg, icon } = iconMap[n.type] || { bg: 'rgba(156,163,175,0.15)', icon: '🔔' };
             return (
               <div key={n.id}
-                style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '16px 20px', borderBottom: i < notifications.length-1 ? '1px solid #F3F4F6' : 'none', position: 'relative', cursor: 'default', transition: 'all 0.15s ease', borderLeft: n.is_read ? '3px solid transparent' : '3px solid #4F46E5', background: n.is_read ? '#fff' : 'rgba(79,70,229,0.025)' }}
+                className={`notif-page-item ${n.is_read ? 'notif-page-item-read' : 'notif-page-item-unread'}`}
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '16px 20px', borderBottom: i < notifications.length-1 ? '1px solid #F3F4F6' : 'none', position: 'relative', cursor: 'default', transition: 'all 0.15s ease', borderLeft: n.is_read ? '3px solid transparent' : '3px solid #4F46E5', background: n.is_read ? 'var(--color-surface)' : 'rgba(79,70,229,0.025)' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.02)'; e.currentTarget.querySelector('.notif-actions').style.opacity = '1'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = n.is_read ? '#fff' : 'rgba(79,70,229,0.025)'; e.currentTarget.querySelector('.notif-actions').style.opacity = '0'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = n.is_read ? 'var(--color-surface)' : 'rgba(79,70,229,0.025)'; e.currentTarget.querySelector('.notif-actions').style.opacity = '0'; }}
               >
                 {/* Icon */}
                 <div style={{ width: 40, height: 40, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{icon}</div>
                 {/* Content */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.9375rem', color: '#111827' }}>{n.title}</p>
-                  <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#6B7280', lineHeight: 1.5, marginTop: 3 }}>{n.message}</p>
-                  <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.75rem', color: '#9CA3AF', marginTop: 5 }}>{n.created_at ? new Date(n.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''}</p>
+                  <p className="notif-page-title" style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-text)' }}>{n.title}</p>
+                  <p className="notif-page-message" style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: 'var(--color-text-sub)', lineHeight: 1.5, marginTop: 3 }}>{n.message}</p>
+                  <p className="notif-page-time" style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.75rem', color: '#9CA3AF', marginTop: 5 }}>{n.created_at ? new Date(n.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''}</p>
                 </div>
                 {/* Right */}
                 <div className="notif-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0, opacity: 0, transition: 'opacity 0.15s' }}>

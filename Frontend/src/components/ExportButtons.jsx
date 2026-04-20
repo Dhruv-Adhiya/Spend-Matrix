@@ -16,27 +16,14 @@ export default function ExportButtons({ filters, disabled }) {
     finally { setLoading(false); }
   };
 
-  const btnBase = {
-    display: 'flex', alignItems: 'center', gap: 6,
-    padding: '8px 14px',
-    border: '1.5px solid #E5E7EB',
-    borderRadius: 9,
-    background: '#fff',
-    color: '#374151',
-    fontFamily: '"DM Sans", sans-serif', fontWeight: 600, fontSize: '0.8125rem',
-    cursor: 'pointer',
-    transition: 'all 0.18s ease',
-  };
-
   return (
     <div style={{ display: 'flex', gap: 8 }}>
       {/* CSV */}
       <button
         onClick={() => handle('csv')}
         disabled={disabled || loadingCSV || loadingPDF}
-        style={{ ...btnBase, opacity: disabled ? 0.4 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
-        onMouseEnter={e => { if (!disabled) { e.currentTarget.style.borderColor = '#4F46E5'; e.currentTarget.style.color = '#4F46E5'; e.currentTarget.style.background = '#EEF2FF'; } }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#374151'; e.currentTarget.style.background = '#fff'; }}
+        className="btn btn-secondary"
+        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', fontSize: '0.8125rem', opacity: disabled ? 0.4 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
       >
         {loadingCSV
           ? <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
@@ -48,9 +35,8 @@ export default function ExportButtons({ filters, disabled }) {
       <button
         onClick={() => handle('pdf')}
         disabled={disabled || loadingCSV || loadingPDF}
-        style={{ ...btnBase, opacity: disabled ? 0.4 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
-        onMouseEnter={e => { if (!disabled) { e.currentTarget.style.borderColor = '#4F46E5'; e.currentTarget.style.color = '#4F46E5'; e.currentTarget.style.background = '#EEF2FF'; } }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#374151'; e.currentTarget.style.background = '#fff'; }}
+        className="btn btn-secondary"
+        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', fontSize: '0.8125rem', opacity: disabled ? 0.4 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
       >
         {loadingPDF
           ? <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />

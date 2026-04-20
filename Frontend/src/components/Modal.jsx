@@ -31,6 +31,7 @@ export default function Modal({ isOpen, onClose, title, children, width = '480px
       <div
         ref={containerRef}
         onClick={e => e.stopPropagation()}
+        className="modal-content"
         style={{
           background: '#fff',
           borderRadius: 20,
@@ -49,7 +50,7 @@ export default function Modal({ isOpen, onClose, title, children, width = '480px
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '20px 24px 0', marginBottom: 20,
           }}>
-            <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 600, fontSize: '1.125rem', color: '#111827' }}>
+            <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 600, fontSize: '1.125rem', color: 'var(--color-text)' }}>
               {title}
             </h2>
             {showClose && (

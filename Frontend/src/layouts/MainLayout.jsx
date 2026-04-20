@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from '../components/NotificationBell';
 import {
   LayoutDashboard, CreditCard, Tag, Target, BarChart2,
-  RefreshCw, Settings, LogOut, Shield, X, Menu,
+  RefreshCw, Settings, LogOut, Shield, X, Menu, Moon, Sun,
 } from 'lucide-react';
+
+function useDarkMode() {
+  const [dark, setDark] = useState(() => localStorage.getItem('sm_theme') === 'dark');
+  useEffect(() => {
+    document.documentElement.dataset.theme = dark ? 'dark' : '';
+    localStorage.setItem('sm_theme', dark ? 'dark' : 'light');
+  }, [dark]);
+  return [dark, setDark];
+}
 
 const navItems = [
   { to: '/dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
@@ -21,14 +30,15 @@ const getInitials = (name) => {
   return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase();
 };
 
-function Sidebar({ user, onClose }) {
+function Sidebar({ user, onClose, dark }) {
   return (
     <aside
       style={{
         width: 220,
-        background: 'rgba(255,255,255,0.95)',
+        background: dark ? 'rgba(15,23,42,0.95)' : 'rgba(255,255,255,0.95)',
         backdropFilter: 'blur(16px)',
-        borderRight: '1.5px solid rgba(229,231,235,0.8)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderRight: `1.5px solid ${dark ? 'rgba(51,65,85,0.8)' : 'rgba(229,231,235,0.8)'}`,
         boxShadow: '4px 0 20px rgba(0,0,0,0.03)',
         height: 'calc(100vh - 64px)',
         position: 'sticky',
@@ -67,18 +77,23 @@ function Sidebar({ user, onClose }) {
           className={({ isActive }) =>
             `flex items-center gap-2.5 rounded-[10px] text-sm font-medium transition-all duration-200 ${
               isActive
-                ? 'bg-gradient-to-r from-indigo-100/80 to-violet-100/50 text-indigo-600 font-semibold'
-                : 'text-gray-500 hover:bg-indigo-50/60 hover:text-indigo-600'
+                ? 'font-semibold'
+                : ''
             }`
           }
           style={({ isActive }) => ({
             padding: isActive ? '10px 14px 10px 11px' : '10px 14px',
             borderLeft: isActive ? '3px solid #4F46E5' : '3px solid transparent',
+            background: isActive
+              ? (dark ? 'rgba(79,70,229,0.15)' : 'linear-gradient(135deg, rgba(79,70,229,0.12), rgba(139,92,246,0.08))')
+              : 'transparent',
+            color: isActive ? '#4F46E5' : (dark ? '#94A3B8' : '#6B7280'),
+            fontWeight: isActive ? 600 : 500,
           })}
         >
           {({ isActive }) => (
             <>
-              <Icon size={18} color={isActive ? '#4F46E5' : '#6B7280'} />
+              <Icon size={18} color={isActive ? '#4F46E5' : (dark ? '#94A3B8' : '#6B7280')} />
               {label}
             </>
           )}
@@ -88,28 +103,32 @@ function Sidebar({ user, onClose }) {
       {/* Admin section */}
       {user?.role === 'admin' && (
         <>
-          <hr style={{ border: 'none', borderTop: '1px solid #E5E7EB', margin: '8px 12px' }} />
+          <hr style={{ border: 'none', borderTop: `1px solid ${dark ? '#334155' : '#E5E7EB'}`, margin: '8px 12px' }} />
           <p style={{ fontSize: '0.625rem', fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 12px', marginBottom: 8 }}>
             Admin
           </p>
           <NavLink
             to="/admin"
             onClick={onClose}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 rounded-[10px] text-sm font-medium transition-all duration-200 ${
-                isActive
-                  ? 'bg-violet-100/60 text-violet-700 font-semibold'
-                  : 'text-gray-500 hover:bg-violet-50 hover:text-violet-700'
-              }`
-            }
             style={({ isActive }) => ({
+              display: 'flex', alignItems: 'center', gap: 10,
               padding: isActive ? '10px 14px 10px 11px' : '10px 14px',
+              borderRadius: 10,
               borderLeft: isActive ? '3px solid #7C3AED' : '3px solid transparent',
+              background: isActive
+                ? (dark ? 'rgba(139,92,246,0.15)' : 'rgba(139,92,246,0.1)')
+                : 'transparent',
+              color: isActive ? '#7C3AED' : (dark ? '#94A3B8' : '#6B7280'),
+              fontFamily: '"DM Sans", sans-serif',
+              fontWeight: isActive ? 600 : 500,
+              fontSize: '0.875rem',
+              transition: 'all 0.2s ease',
+              textDecoration: 'none',
             })}
           >
             {({ isActive }) => (
               <>
-                <Shield size={18} color={isActive ? '#7C3AED' : '#6B7280'} />
+                <Shield size={18} color={isActive ? '#7C3AED' : (dark ? '#94A3B8' : '#6B7280')} />
                 Admin Panel
               </>
             )}
@@ -120,12 +139,11 @@ function Sidebar({ user, onClose }) {
       {/* Pro Tip card */}
       <div style={{ marginTop: 'auto', margin: 'auto 4px 4px' }}>
         <div
+          className="pro-tip-shimmer"
           style={{
             background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
             borderRadius: 12,
             padding: 14,
-            position: 'relative',
-            overflow: 'hidden',
           }}
         >
           <p style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 600, fontSize: '0.75rem', color: '#fff' }}>💡 Pro Tip</p>
@@ -142,19 +160,21 @@ export default function MainLayout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dark, setDark] = useDarkMode();
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8FAFF' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: dark ? '#0F172A' : '#F8FAFF' }}>
 
       {/* ── Header ── */}
       <header
         style={{
           height: 64,
-          background: 'rgba(255,255,255,0.92)',
+          background: dark ? 'rgba(15,23,42,0.92)' : 'rgba(255,255,255,0.92)',
           backdropFilter: 'blur(16px)',
-          borderBottom: '1.5px solid rgba(229,231,235,0.8)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderBottom: `1.5px solid ${dark ? 'rgba(51,65,85,0.8)' : 'rgba(229,231,235,0.8)'}`,
           boxShadow: '0 2px 20px rgba(0,0,0,0.04)',
           position: 'sticky',
           top: 0,
@@ -168,10 +188,14 @@ export default function MainLayout({ children }) {
         {/* Left — hamburger (mobile) + logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
-            className="btn-icon md:hidden"
             onClick={() => setSidebarOpen(true)}
             aria-label="Open menu"
-            style={{ display: 'none' }}
+            className="hamburger-btn"
+            style={{
+              width: 36, height: 36, borderRadius: '50%', border: 'none',
+              background: 'rgba(79,70,229,0.08)', color: '#4F46E5',
+              cursor: 'pointer', alignItems: 'center', justifyContent: 'center',
+            }}
           >
             <Menu size={20} />
           </button>
@@ -191,13 +215,29 @@ export default function MainLayout({ children }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <NotificationBell />
 
+          {/* Dark mode toggle */}
+          <button
+            onClick={() => setDark(d => !d)}
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            style={{
+              width: 36, height: 36, borderRadius: '50%', border: 'none',
+              background: 'transparent', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: dark ? '#94A3B8' : '#6B7280', transition: 'all 0.18s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.08)'; e.currentTarget.style.color = '#4F46E5'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = dark ? '#94A3B8' : '#6B7280'; }}
+          >
+            {dark ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+
           {/* Settings gear */}
           <NavLink
             to="/settings"
             aria-label="Settings"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', transition: 'all 0.18s ease', color: '#6B7280' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', transition: 'all 0.18s ease', color: dark ? '#94A3B8' : '#6B7280' }}
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.08)'; e.currentTarget.style.color = '#4F46E5'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.color = '#6B7280'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.color = dark ? '#94A3B8' : '#6B7280'; }}
           >
             <Settings size={22} />
           </NavLink>
@@ -243,31 +283,32 @@ export default function MainLayout({ children }) {
         {sidebarOpen && (
           <div
             onClick={() => setSidebarOpen(false)}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 99 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 99, backdropFilter: 'blur(2px)' }}
           />
         )}
 
         {/* Mobile sidebar drawer */}
         {sidebarOpen && (
           <div style={{ position: 'fixed', left: 0, top: 0, height: '100vh', zIndex: 100 }}>
-            <Sidebar user={user} onClose={() => setSidebarOpen(false)} />
+            <Sidebar user={user} dark={dark} onClose={() => setSidebarOpen(false)} />
           </div>
         )}
 
         {/* Desktop sidebar */}
-        <div className="hidden md:block" style={{ display: 'block' }}>
-          <Sidebar user={user} />
+        <div className="hidden md:block">
+          <Sidebar user={user} dark={dark} />
         </div>
 
         {/* Main content */}
         <main
+          className="main-area main-content"
           style={{
             flex: 1,
             padding: '28px 32px',
-            background: '#F8FAFF',
+            background: dark ? '#0F172A' : '#F8FAFF',
             minHeight: 'calc(100vh - 64px)',
             overflowY: 'auto',
-            backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.06) 1px, transparent 1px)',
+            backgroundImage: `radial-gradient(circle, ${dark ? 'rgba(79,70,229,0.03)' : 'rgba(79,70,229,0.06)'} 1px, transparent 1px)`,
             backgroundSize: '24px 24px',
           }}
         >

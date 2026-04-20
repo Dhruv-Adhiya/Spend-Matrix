@@ -3,36 +3,44 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#3b82f6'];
+const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
 export default function PaymentSourceChart({ data }) {
   const entries = data ? Object.entries(data) : [];
-
-  if (!entries.length) {
-    return (
-      <div className="bg-white rounded-xl shadow-sm p-5 flex items-center justify-center h-64 text-gray-400 text-sm">
-        No payment source data available
-      </div>
-    );
-  }
-
-  const chartData = {
-    labels: entries.map(([k]) => k.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())),
-    datasets: [{
-      data: entries.map(([, v]) => v),
-      backgroundColor: COLORS.slice(0, entries.length),
-      borderWidth: 1,
-    }],
-  };
+  const total = entries.reduce((s, [, v]) => s + Number(v), 0);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-5">
-      <h3 className="text-sm font-semibold text-gray-700 mb-4">Payment Source Breakdown</h3>
-      <div className="flex justify-center">
-        <div style={{ width: 260, height: 260 }}>
-          <Doughnut data={chartData} options={{ plugins: { legend: { position: 'bottom' } } }} />
+    <div className="card" style={{ padding: 20 }}>
+      <h3 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1rem', color: '#111827', marginBottom: 16 }}>
+        Payment Methods
+      </h3>
+      {!entries.length ? (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 220, fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#9CA3AF' }}>
+          No payment source data available
         </div>
-      </div>
+      ) : (
+        <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+          <div style={{ width: 260, height: 260, position: 'relative' }}>
+            <Doughnut
+              data={{
+                labels: entries.map(([k]) => k.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())),
+                datasets: [{ data: entries.map(([, v]) => v), backgroundColor: COLORS.slice(0, entries.length), borderWidth: 2, borderColor: '#fff' }],
+              }}
+              options={{
+                cutout: '60%',
+                plugins: {
+                  legend: { position: 'bottom', labels: { font: { family: '"DM Sans",sans-serif', size: 12 }, padding: 12 } },
+                  tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw / total * 100)}%)` } },
+                },
+              }}
+            />
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-60%)', textAlign: 'center', pointerEvents: 'none' }}>
+              <p style={{ fontFamily: '"JetBrains Mono",monospace', fontWeight: 700, fontSize: '1.25rem', color: '#111827' }}>{total}</p>
+              <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.7rem', color: '#9CA3AF' }}>Transactions</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

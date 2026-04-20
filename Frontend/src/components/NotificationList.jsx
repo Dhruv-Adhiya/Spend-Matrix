@@ -3,20 +3,20 @@ import NotificationItem from './NotificationItem';
 export default function NotificationList({ notifications, onMarkRead, onDelete }) {
   if (!notifications.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-        <svg className="w-12 h-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
-        <p className="text-sm">No notifications yet</p>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 24px', gap: 10 }}>
+        <span style={{ fontSize: 64, color: '#D1D5DB', lineHeight: 1 }}>🔔</span>
+        <p style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: '#9CA3AF', marginTop: 8 }}>You're all caught up!</p>
+        <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 400, fontSize: '0.875rem', color: '#9CA3AF' }}>No notifications at the moment.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {notifications.map((n) => (
-        <NotificationItem key={n.id} notification={n} onMarkRead={onMarkRead} onDelete={onDelete} />
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {notifications.map((n, i) => (
+        <div key={n.id} style={{ borderBottom: i < notifications.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+          <NotificationItem notification={n} onMarkRead={onMarkRead} onDelete={onDelete} />
+        </div>
       ))}
     </div>
   );

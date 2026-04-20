@@ -37,7 +37,7 @@ export default function Settings() {
       {!loading && !error && (
         <div className="card" style={{ padding: 0, borderRadius: 16, overflow: 'hidden' }}>
           {/* Tab bar */}
-          <div style={{ display: 'flex', borderBottom: '2px solid #E5E7EB', padding: '0 24px', gap: 0 }}>
+          <div className="settings-tab-bar" style={{ display: 'flex', borderBottom: '2px solid var(--color-border)', padding: '0 24px', gap: 0 }}>
             {['Profile','Password','Preferences'].map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 style={{ padding: '14px 20px', fontFamily: '"DM Sans",sans-serif', fontWeight: activeTab === tab ? 600 : 500, fontSize: '0.9375rem', cursor: 'pointer', border: 'none', background: 'transparent', color: activeTab === tab ? '#4F46E5' : '#6B7280', position: 'relative', transition: 'color 0.15s' }}

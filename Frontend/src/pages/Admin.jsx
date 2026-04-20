@@ -38,27 +38,29 @@ function AuditLogs() {
 
   const set = (key, val) => setFilters((f) => ({ ...f, [key]: val, page: 1 }));
 
-  const actionColors = {
-    USER_BLOCKED: 'bg-yellow-100 text-yellow-700',
-    USER_UNBLOCKED: 'bg-green-100 text-green-700',
-    USER_DELETED: 'bg-red-100 text-red-600',
+  const actionBadge = {
+    USER_BLOCKED:   { bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
+    USER_UNBLOCKED: { bg: '#ECFDF5', color: '#065F46', border: '#A7F3D0' },
+    USER_DELETED:   { bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
   };
 
+  const pgBtn = (active) => ({
+    width: 36, height: 36, borderRadius: 8, border: active ? 'none' : '1.5px solid #E5E7EB',
+    background: active ? '#7C3AED' : '#fff', color: active ? '#fff' : '#374151',
+    fontFamily: '"DM Sans",sans-serif', fontWeight: active ? 600 : 400, fontSize: '0.875rem',
+    cursor: 'pointer', transition: 'all 0.15s ease', display: 'flex', alignItems: 'center', justifyContent: 'center',
+  });
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap gap-3">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Filters */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         <input
-          type="text"
-          placeholder="Filter by user ID..."
-          value={filters.user_id}
-          onChange={(e) => set('user_id', e.target.value)}
-          className="border rounded-lg px-3 py-2 text-sm w-44 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          type="text" placeholder="Filter by user ID..."
+          value={filters.user_id} onChange={e => set('user_id', e.target.value)}
+          className="input" style={{ width: 180 }}
         />
-        <select
-          value={filters.action}
-          onChange={(e) => set('action', e.target.value)}
-          className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-        >
+        <select value={filters.action} onChange={e => set('action', e.target.value)} className="input" style={{ width: 180 }}>
           <option value="">All Actions</option>
           <option value="USER_BLOCKED">USER_BLOCKED</option>
           <option value="USER_UNBLOCKED">USER_UNBLOCKED</option>
@@ -66,59 +68,54 @@ function AuditLogs() {
         </select>
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && (
+        <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '10px 14px', color: '#DC2626', fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem' }}>
+          {error}
+        </div>
+      )}
 
-      <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3 text-left">Admin</th>
-              <th className="px-4 py-3 text-left">Action</th>
-              <th className="px-4 py-3 text-left">Entity</th>
-              <th className="px-4 py-3 text-left">Metadata</th>
-              <th className="px-4 py-3 text-left">IP</th>
-              <th className="px-4 py-3 text-left">Time</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {loading ? (
-              <tr><td colSpan={6} className="text-center py-8 text-gray-400">Loading...</td></tr>
-            ) : logs.length === 0 ? (
-              <tr><td colSpan={6} className="text-center py-8 text-gray-400">No logs found</td></tr>
-            ) : logs.map((l) => (
-              <tr key={l.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-gray-600">{l.email ?? l.user_id}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${actionColors[l.action] ?? 'bg-gray-100 text-gray-600'}`}>
-                    {l.action}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-gray-500">{l.entity_type ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-400 text-xs max-w-xs truncate">
-                  {l.metadata ? JSON.stringify(l.metadata) : '—'}
-                </td>
-                <td className="px-4 py-3 text-gray-400">{l.ip_address ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-500">{new Date(l.created_at).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Table */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px 100px 1fr 110px 140px', alignItems: 'center', padding: '10px 20px', background: 'rgba(139,92,246,0.04)', borderBottom: '1.5px solid rgba(139,92,246,0.08)' }}>
+          {['ADMIN','ACTION','ENTITY','METADATA','IP','TIME'].map(c => (
+            <span key={c} style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.75rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c}</span>
+          ))}
+        </div>
+        {loading ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120, gap: 10 }}>
+            <span className="spinner" />
+          </div>
+        ) : logs.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '32px 20px', fontFamily: '"DM Sans",sans-serif', color: '#9CA3AF' }}>No logs found</div>
+        ) : logs.map((l, i) => {
+          const badge = actionBadge[l.action] || { bg: '#F3F4F6', color: '#6B7280', border: '#E5E7EB' };
+          return (
+            <div key={l.id} style={{ display: 'grid', gridTemplateColumns: '1fr 140px 100px 1fr 110px 140px', alignItems: 'center', padding: '12px 20px', borderBottom: i < logs.length-1 ? '1px solid #F3F4F6' : 'none', transition: 'background 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(139,92,246,0.02)'}
+              onMouseLeave={e => e.currentTarget.style.background = ''}>
+              <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#6B7280' }}>{l.email ?? l.user_id}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.75rem', borderRadius: 999, padding: '3px 10px', border: '1px solid', background: badge.bg, color: badge.color, borderColor: badge.border }}>{l.action}</span>
+              <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#9CA3AF' }}>{l.entity_type ?? '—'}</span>
+              <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.75rem', color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.metadata ? JSON.stringify(l.metadata) : '—'}</span>
+              <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.8125rem', color: '#9CA3AF' }}>{l.ip_address ?? '—'}</span>
+              <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.8125rem', color: '#6B7280' }}>{new Date(l.created_at).toLocaleString()}</span>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="flex items-center justify-between text-sm text-gray-500">
-        <span>{meta.total} total logs</span>
-        <div className="flex gap-2">
-          <button
-            disabled={filters.page <= 1}
-            onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
-            className="px-3 py-1 rounded-lg border disabled:opacity-40 hover:bg-gray-50"
-          >← Prev</button>
-          <span className="px-3 py-1">Page {meta.page} / {meta.totalPages || 1}</span>
-          <button
-            disabled={filters.page >= meta.totalPages}
-            onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
-            className="px-3 py-1 rounded-lg border disabled:opacity-40 hover:bg-gray-50"
-          >Next →</button>
+      {/* Pagination */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+        <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.8125rem', color: '#6B7280' }}>{meta.total} total logs</span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button disabled={filters.page <= 1} onClick={() => setFilters(f => ({ ...f, page: f.page - 1 }))} style={{ ...pgBtn(false), opacity: filters.page <= 1 ? 0.4 : 1 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span style={{ ...pgBtn(false), cursor: 'default', minWidth: 80, fontFamily: '"DM Sans",sans-serif', fontSize: '0.8125rem', color: '#6B7280' }}>Page {meta.page} / {meta.totalPages || 1}</span>
+          <button disabled={filters.page >= meta.totalPages} onClick={() => setFilters(f => ({ ...f, page: f.page + 1 }))} style={{ ...pgBtn(false), opacity: filters.page >= meta.totalPages ? 0.4 : 1 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
       </div>
     </div>
@@ -138,21 +135,20 @@ function SystemStats() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-gray-400">Loading stats...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 192 }}><span className="spinner" /></div>;
+  if (error) return <div style={{ background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '12px 16px', color: '#DC2626', fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem' }}>{error}</div>;
+
+  const net = (stats.total_income || 0) - (stats.total_expense || 0);
+  const fmt = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(Number(n) || 0);
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      <StatsCard label="Total Users" value={stats.total_users} color="indigo" />
-      <StatsCard label="Active Users" value={stats.active_users} color="green" />
-      <StatsCard label="Total Transactions" value={stats.total_transactions} color="indigo" />
-      <StatsCard label="Total Income" value={`$${stats.total_income?.toFixed(2)}`} color="green" />
-      <StatsCard label="Total Expense" value={`$${stats.total_expense?.toFixed(2)}`} color="red" />
-      <StatsCard
-        label="Net Balance"
-        value={`$${(stats.total_income - stats.total_expense).toFixed(2)}`}
-        color={(stats.total_income - stats.total_expense) >= 0 ? 'green' : 'red'}
-      />
+    <div className="grid-admin-stats">
+      <StatsCard label="Total Users" value={stats.total_users} icon="👥" />
+      <StatsCard label="Active Users" value={stats.active_users} icon="✅" />
+      <StatsCard label="Total Transactions" value={stats.total_transactions} icon="💳" />
+      <StatsCard label="Total Income" value={fmt(stats.total_income)} icon="📥" />
+      <StatsCard label="Total Expense" value={fmt(stats.total_expense)} icon="📤" />
+      <StatsCard label="Net Balance" value={fmt(net)} icon={net >= 0 ? '📈' : '📉'} />
     </div>
   );
 }

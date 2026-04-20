@@ -49,7 +49,7 @@ export default function Dashboard() {
         {/* Page header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <h1 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 700, fontSize: '1.5rem', color: '#111827' }}>
+            <h1 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 700, fontSize: '1.5rem', color: 'var(--color-text)' }}>
               Welcome,{' '}
               <span className="gradient-text">{firstName}</span>
               {' '}👋
@@ -63,7 +63,7 @@ export default function Dashboard() {
         {/* Loading skeleton */}
         {loading && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+            <div className="grid-summary">
               <SkeletonCard /><SkeletonCard /><SkeletonCard />
             </div>
             <div style={{ background: '#fff', borderRadius: 16, padding: 20, marginTop: 8 }}>
@@ -90,7 +90,7 @@ export default function Dashboard() {
         {/* Content */}
         {!loading && !error && data && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+            <div className="grid-summary">
               <div style={{ animation: 'fadeInUp 0.3s ease both', animationDelay: '0s' }}>
                 <SummaryCard title="Total Balance" amount={data.balance} type="balance" />
               </div>

@@ -52,83 +52,80 @@ function BudgetModal({ initial, onClose, onSaved }) {
       setLoading(false);
     }
   };
+  const lbl = { fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: 'var(--color-text-sub)', marginBottom: 6, display: 'block' };
+  const readonlyStyle = { width: '100%', padding: '11px 14px', fontFamily: '"DM Sans",sans-serif', fontSize: '0.9375rem', background: '#F9FAFB', border: '1.5px solid #E5E7EB', borderRadius: 10, color: '#9CA3AF' };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-gray-800">{isEdit ? 'Edit Budget' : 'Set Budget'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      onClick={onClose}>
+      <div className="modal-content" style={{ background: '#fff', borderRadius: 20, width: 480, maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both' }}
+        onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px 0', marginBottom: 20 }}>
+          <h2 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: 'var(--color-text)' }}>{isEdit ? 'Edit Budget' : 'Set Budget'}</h2>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(79,70,229,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = '#EF4444'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.06)'; e.currentTarget.style.color = '#6B7280'; }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
 
-        {error && <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2 mb-4">{error}</p>}
+        {error && (
+          <div style={{ margin: '0 24px 16px', background: 'rgba(239,68,68,0.07)', border: '1.5px solid rgba(239,68,68,0.25)', borderLeft: '3px solid #EF4444', borderRadius: 10, padding: '10px 14px', color: '#DC2626', fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem' }}>
+            ⚠️ {error}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Expense Category</label>
+            <label style={lbl}>Expense Category</label>
             {isEdit ? (
-              <p className="w-full border border-gray-100 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-700">
-                {initial.category_name}
-              </p>
+              <div style={readonlyStyle}>{initial.category_name}</div>
             ) : (
-              <select value={form.category_id} onChange={(e) => set('category_id', e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+              <select value={form.category_id} onChange={e => set('category_id', e.target.value)} className="input">
                 <option value="">Select category</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             )}
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Budget Amount (₹)</label>
-            <input type="number" min="0.01" step="0.01" value={form.amount}
-              onChange={(e) => set('amount', e.target.value)} placeholder="0.00"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+            <label style={lbl}>Budget Amount</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontFamily: '"DM Sans",sans-serif', fontWeight: 500, color: '#9CA3AF', pointerEvents: 'none' }}>₹</span>
+              <input type="number" min="0.01" step="0.01" value={form.amount} onChange={e => set('amount', e.target.value)} placeholder="0.00" className="input" style={{ paddingLeft: 32 }} />
+            </div>
           </div>
 
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <label className="text-xs text-gray-500 mb-1 block">Month</label>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <label style={lbl}>Month</label>
               {isEdit ? (
-                <p className="w-full border border-gray-100 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-700">
-                  {MONTH_NAMES[initial.month - 1]}
-                </p>
+                <div style={readonlyStyle}>{MONTH_NAMES[initial.month - 1]}</div>
               ) : (
-                <select value={form.month} onChange={(e) => set('month', e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                  {MONTH_NAMES.map((m, i) => (
-                    <option key={i + 1} value={i + 1}>{m}</option>
-                  ))}
+                <select value={form.month} onChange={e => set('month', e.target.value)} className="input">
+                  {MONTH_NAMES.map((m, i) => <option key={i+1} value={i+1}>{m}</option>)}
                 </select>
               )}
             </div>
-            <div className="flex-1">
-              <label className="text-xs text-gray-500 mb-1 block">Year</label>
+            <div style={{ flex: 1 }}>
+              <label style={lbl}>Year</label>
               {isEdit ? (
-                <p className="w-full border border-gray-100 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-700">
-                  {initial.year}
-                </p>
+                <div style={readonlyStyle}>{initial.year}</div>
               ) : (
-                <input type="number" min="2000" max="2100" value={form.year}
-                  onChange={(e) => set('year', e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+                <input type="number" min="2000" max="2100" value={form.year} onChange={e => set('year', e.target.value)} className="input" />
               )}
             </div>
           </div>
-
-          <div className="flex gap-2 mt-1">
-            <button type="button" onClick={onClose}
-              className="flex-1 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading}
-              className="flex-1 py-2 rounded-lg bg-indigo-600 text-white text-sm hover:bg-indigo-700 transition disabled:opacity-60">
-              {loading ? 'Saving…' : isEdit ? 'Update Budget' : 'Save Budget'}
-            </button>
-          </div>
         </form>
+
+        <div style={{ padding: '20px 24px', borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+          <button type="button" onClick={onClose} className="btn btn-secondary" style={{ padding: '10px 20px' }}>Cancel</button>
+          <button type="submit" disabled={loading} className="btn btn-primary" style={{ padding: '10px 20px' }} onClick={handleSubmit}>
+            {loading ? <><span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> Saving...</> : isEdit ? 'Update Budget' : 'Save Budget'}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -201,13 +198,13 @@ export default function Budgets() {
       <div className="card" style={{ padding: '14px 20px', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: '#374151', marginBottom: 4 }}>Month</label>
+            <label style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: 'var(--color-text-sub)', marginBottom: 4 }}>Month</label>
             <select value={month} onChange={e => setMonth(Number(e.target.value))} className="input" style={{ width: 150 }}>
               {MONTH_NAMES.map((m, i) => <option key={i+1} value={i+1}>{m}</option>)}
             </select>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: '#374151', marginBottom: 4 }}>Year</label>
+            <label style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: 'var(--color-text-sub)', marginBottom: 4 }}>Year</label>
             <select value={year} onChange={e => setYear(Number(e.target.value))} className="input" style={{ width: 110 }}>
               {[2023,2024,2025,2026,2027].map(y => <option key={y} value={y}>{y}</option>)}
             </select>
@@ -233,7 +230,7 @@ export default function Budgets() {
           <button className="btn btn-primary" style={{ padding: '10px 18px', fontSize: '0.875rem' }} onClick={() => { setEditTarget(null); setShowModal(true); }}>+ Set Budget</button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+        <div className="grid-budgets">
           {budgets.map((b, i) => {
             const pct = b.percentage_used || 0;
             const over = b.spent > b.budget;
@@ -241,12 +238,13 @@ export default function Budgets() {
             return (
               <div key={b.category_id} className="card card-hover"
                 style={{ padding: '20px 22px', animation: 'fadeInUp 0.3s ease both', animationDelay: `${i*0.05}s`,
-                  ...(over ? { borderColor: 'rgba(239,68,68,0.35)', borderTop: '4px solid #EF4444', background: 'rgba(255,255,255,0.95)' } : {}) }}>
+                  ...(over ? { borderColor: 'rgba(239,68,68,0.35)', borderTop: '4px solid #EF4444' } : {}) }}
+                className={`card card-hover ${over ? 'budget-card-over' : ''}`}>
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans",sans-serif', fontWeight: 700, fontSize: 13, color: '#4F46E5' }}>{b.category_name?.[0]?.toUpperCase()}</div>
-                    <span style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.9375rem', color: '#111827', marginLeft: 10 }}>{b.category_name}</span>
+                    <span style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-text)', marginLeft: 10 }}>{b.category_name}</span>
                   </div>
                   <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.8rem', color: '#9CA3AF' }}>{MONTH_NAMES[month-1]} {year}</span>
                 </div>
@@ -292,12 +290,12 @@ export default function Budgets() {
       {deleteId !== null && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
           onClick={() => setDeleteId(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, width: 380, maxWidth: '100%', padding: 28, boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both', textAlign: 'center' }}
+          <div className="modal-content" style={{ background: '#fff', borderRadius: 20, width: 380, maxWidth: '100%', padding: 28, boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both', textAlign: 'center' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', animation: 'countUp 0.3s ease' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
             </div>
-            <h3 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: '#111827' }}>Delete Budget?</h3>
+            <h3 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: 'var(--color-text)' }}>Delete Budget?</h3>
             <p style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#6B7280', lineHeight: 1.6, marginTop: 8 }}>This action cannot be undone.</p>
             <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
               <button onClick={() => setDeleteId(null)} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>

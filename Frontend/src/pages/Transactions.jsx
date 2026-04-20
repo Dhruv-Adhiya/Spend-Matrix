@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import confetti from 'canvas-confetti';
 import MainLayout from '../layouts/MainLayout';
 import CategoryDropdown from '../components/CategoryDropdown';
 import SearchBar from '../components/SearchBar';
@@ -47,7 +48,18 @@ function TransactionModal({ initial, onClose, onSaved }) {
     try {
       const payload = { ...form, amount: Number(form.amount), category_id: Number(form.category_id) };
       if (isEdit) await transactionAPI.update(initial.id, payload);
-      else await transactionAPI.create(payload);
+      else {
+        await transactionAPI.create(payload);
+        if (!localStorage.getItem('sm_first_tx_done')) {
+          localStorage.setItem('sm_first_tx_done', '1');
+          confetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ['#4F46E5','#8B5CF6','#10B981','#F59E0B','#3B82F6'],
+          });
+        }
+      }
       onSaved();
       onClose();
     } catch (err) {
@@ -58,7 +70,7 @@ function TransactionModal({ initial, onClose, onSaved }) {
   };
 
   const pillToggle = (options, active, onSelect) => (
-    <div style={{ display: 'flex', background: '#F3F4F6', borderRadius: 10, padding: 4, gap: 4 }}>
+    <div className="pill-toggle" style={{ display: 'flex', background: '#F3F4F6', borderRadius: 10, padding: 4, gap: 4 }}>
       {options.map(o => (
         <button key={o.value} type="button" onClick={() => onSelect(o.value)}
           style={{
@@ -74,17 +86,17 @@ function TransactionModal({ initial, onClose, onSaved }) {
     </div>
   );
 
-  const lbl = { fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: '#374151', marginBottom: 6, display: 'block' };
+  const lbl = { fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.8125rem', color: 'var(--color-text-sub)', marginBottom: 6, display: 'block' };
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
       onClick={onClose}>
-      <div style={{ background: '#fff', borderRadius: 20, width: 480, maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both' }}
+      <div className="modal-content" style={{ background: '#fff', borderRadius: 20, width: 480, maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both' }}
         onClick={e => e.stopPropagation()}>
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px 0', marginBottom: 20 }}>
-          <h2 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: '#111827' }}>
+          <h2 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: 'var(--color-text)' }}>
             {isEdit ? 'Edit Transaction' : 'Add Transaction'}
           </h2>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(79,70,229,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', transition: 'all 0.15s' }}
@@ -141,7 +153,8 @@ function TransactionModal({ initial, onClose, onSaved }) {
             <label style={lbl}>Description (optional)</label>
             <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3}
               placeholder="What was this for?"
-              style={{ width: '100%', minHeight: 80, padding: '11px 14px', fontFamily: '"DM Sans",sans-serif', fontSize: '0.9375rem', background: '#FAFBFF', border: '1.5px solid #E5E7EB', borderRadius: 10, color: '#111827', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+              className="input"
+              style={{ width: '100%', minHeight: 80, resize: 'vertical', boxSizing: 'border-box' }} />
           </div>
 
           {/* Payment Source toggle */}
@@ -156,7 +169,7 @@ function TransactionModal({ initial, onClose, onSaved }) {
         </form>
 
         {/* Footer */}
-        <div style={{ padding: '20px 24px', borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+        <div className="modal-footer" style={{ padding: '20px 24px', borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
           <button type="button" onClick={onClose} className="btn btn-secondary" style={{ padding: '10px 20px' }}>Cancel</button>
           <button type="submit" form="tx-form" disabled={loading} className="btn btn-primary" style={{ padding: '10px 20px' }}
             onClick={handleSubmit}>
@@ -173,12 +186,12 @@ function DeleteConfirm({ onConfirm, onCancel, loading }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
       onClick={onCancel}>
-      <div style={{ background: '#fff', borderRadius: 20, width: 380, maxWidth: '100%', padding: 28, boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both', textAlign: 'center' }}
+      <div className="modal-content" style={{ background: '#fff', borderRadius: 20, width: 380, maxWidth: '100%', padding: 28, boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both', textAlign: 'center' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', animation: 'countUp 0.3s ease' }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
         </div>
-        <h3 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: '#111827' }}>Delete Transaction?</h3>
+        <h3 style={{ fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 600, fontSize: '1.125rem', color: 'var(--color-text)' }}>Delete Transaction?</h3>
         <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 400, fontSize: '0.875rem', color: '#6B7280', lineHeight: 1.6, marginTop: 8 }}>This action cannot be undone. The transaction will be permanently removed.</p>
         <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
           <button onClick={onCancel} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>
@@ -346,8 +359,8 @@ export default function Transactions() {
         <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 16 }}>
 
           {/* Header row */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '110px 90px 130px 1fr 130px 110px 80px',
+          <div className="tx-header" style={{
+            display: 'grid', gridTemplateColumns: '100px 85px 1fr 1.5fr 100px 120px 70px',
             alignItems: 'center', padding: '12px 20px',
             background: 'rgba(79,70,229,0.04)', borderBottom: '1.5px solid rgba(79,70,229,0.08)',
           }}>
@@ -360,8 +373,9 @@ export default function Transactions() {
           {transactions.map((tx, i) => (
             <div
               key={tx.id}
+              className="tx-row"
               style={{
-                display: 'grid', gridTemplateColumns: '110px 90px 130px 1fr 130px 110px 80px',
+                display: 'grid', gridTemplateColumns: '100px 85px 1fr 1.5fr 100px 120px 70px',
                 alignItems: 'center', padding: '14px 20px',
                 borderBottom: i < transactions.length - 1 ? '1px solid #F3F4F6' : 'none',
                 transition: 'background 0.15s ease',
@@ -372,30 +386,27 @@ export default function Transactions() {
               onMouseLeave={e => e.currentTarget.style.background = ''}
             >
               {/* DATE */}
-              <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#6B7280' }}>{fmtDate(tx.transaction_date)}</span>
+              <span className="tx-date" style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#6B7280' }}>{fmtDate(tx.transaction_date)}</span>
 
               {/* TYPE BADGE */}
-              <span style={{
-                display: 'inline-flex', alignItems: 'center',
-                fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.75rem',
-                borderRadius: 999, padding: '3px 10px', border: '1px solid',
-                ...(tx.type === 'income'
-                  ? { background: '#ECFDF5', color: '#065F46', borderColor: '#A7F3D0' }
-                  : { background: '#FEF2F2', color: '#991B1B', borderColor: '#FECACA' }),
+              <span className={`badge-type-${tx.type}`} style={{
+                display: 'inline-flex', alignItems: 'center', width: 'fit-content',
+                fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.7rem',
+                borderRadius: 999, padding: '2px 6px', border: '1px solid',
               }}>{tx.type === 'income' ? 'Income' : 'Expense'}</span>
 
               {/* CATEGORY */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: tx.category_color || '#4F46E5', flexShrink: 0 }} />
-                <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#374151' }}>{tx.category_name || '—'}</span>
+                <span className="tx-category" style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#374151' }}>{tx.category_name || '—'}</span>
               </div>
 
               {/* DESCRIPTION */}
-              <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.9375rem', color: '#111827', maxWidth: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tx.description || '—'}</span>
+              <span className="tx-description" style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.9375rem', color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tx.description || '—'}</span>
 
               {/* PAYMENT BADGE */}
               {(() => { const p = payBadge[tx.payment_source] || { bg: '#F3F4F6', color: '#6B7280', border: '#E5E7EB', label: tx.payment_source }; return (
-                <span style={{ display: 'inline-flex', alignItems: 'center', fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.75rem', borderRadius: 999, padding: '3px 10px', border: '1px solid', background: p.bg, color: p.color, borderColor: p.border }}>{p.label}</span>
+                <span className={`badge-pay-${tx.payment_source}`} style={{ display: 'inline-flex', alignItems: 'center', width: 'fit-content', fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.7rem', borderRadius: 999, padding: '2px 6px', border: '1px solid' }}>{p.label}</span>
               ); })()}
 
               {/* AMOUNT */}
@@ -403,11 +414,10 @@ export default function Transactions() {
                 {tx.type === 'income' ? '+' : '-'}{fmtAmt(tx.amount)}
               </span>
 
-              {/* ACTIONS — visible on row hover */}
+              {/* ACTIONS */}
               <div
                 className="row-actions"
-                style={{ display: 'flex', gap: 4, opacity: 0, transition: 'opacity 0.15s' }}
-                ref={el => { if (el) { const row = el.closest('[style]'); row?.addEventListener('mouseenter', () => el.style.opacity = '1'); row?.addEventListener('mouseleave', () => el.style.opacity = '0'); } }}
+                style={{ display: 'flex', gap: 4 }}
               >
                 <button
                   onClick={() => { setEditTarget(tx); setShowModal(true); }}

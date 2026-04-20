@@ -98,12 +98,12 @@ export default function Analytics() {
           </div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 20 }}>
+            <div className="grid-summary" style={{ marginBottom: 20 }}>
               <SummaryCard title="Total Income" amount={summary?.total_income ?? 0} type="income" />
               <SummaryCard title="Total Expense" amount={summary?.total_expense ?? 0} type="expense" />
               <SummaryCard title="Savings" amount={summary?.savings ?? 0} type="balance" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="grid-charts-2" style={{ marginBottom: 16 }}>
               <CategoryChart data={categoryData} />
               <PaymentSourceChart data={paymentData} />
             </div>

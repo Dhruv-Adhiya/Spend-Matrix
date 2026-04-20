@@ -1,106 +1,62 @@
 import ToggleSwitch from './ToggleSwitch';
 
-const FREQ_COLOR = {
-  daily: 'bg-blue-100 text-blue-700',
-  weekly: 'bg-purple-100 text-purple-700',
-  monthly: 'bg-indigo-100 text-indigo-700',
-  yearly: 'bg-pink-100 text-pink-700',
+const freqBadge = {
+  daily:   { bg: '#EFF6FF', color: '#1E40AF', border: '#BFDBFE' },
+  weekly:  { bg: '#ECFDF5', color: '#065F46', border: '#A7F3D0' },
+  monthly: { bg: '#EEF2FF', color: '#4338CA', border: '#C7D2FE' },
+  yearly:  { bg: '#F5F3FF', color: '#5B21B6', border: '#DDD6FE' },
 };
 
 const SOURCE_LABEL = { online: 'Online', cash: 'Cash', credit_card: 'Credit Card' };
 
 export default function RecurringTable({ rules, toggling, onEdit, onDelete, onToggle }) {
-  if (rules.length === 0) {
+  if (!rules.length) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
-        No recurring rules yet. Click &quot;+ Add Rule&quot; to get started.
+      <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 200, gap: 12 }}>
+        <span style={{ fontSize: 48 }}>🔁</span>
+        <p style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 500, fontSize: '0.9375rem', color: '#9CA3AF' }}>No recurring rules yet.</p>
       </div>
     );
   }
 
+  const cols = ['CATEGORY', 'TYPE', 'AMOUNT', 'FREQUENCY', 'NEXT RUN', 'SOURCE', 'STATUS', 'ACTIONS'];
+
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
-          <tr>
-            <th className="px-4 py-3 text-left">Category</th>
-            <th className="px-4 py-3 text-left">Type</th>
-            <th className="px-4 py-3 text-left">Amount</th>
-            <th className="px-4 py-3 text-left">Frequency</th>
-            <th className="px-4 py-3 text-left">Next Run</th>
-            <th className="px-4 py-3 text-left">Source</th>
-            <th className="px-4 py-3 text-left">Status</th>
-            <th className="px-4 py-3 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {rules.map((r) => (
-            <tr key={r.id} className={`hover:bg-gray-50 ${!r.is_active ? 'opacity-60' : ''}`}>
-              <td className="px-4 py-3 text-gray-700">{r.category_name ?? `#${r.category_id}`}</td>
-              <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                    r.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
-                  }`}
-                >
-                  {r.type}
-                </span>
-              </td>
-              <td
-                className={`px-4 py-3 font-semibold ${
-                  r.type === 'income' ? 'text-green-600' : 'text-red-500'
-                }`}
-              >
-                {r.type === 'income' ? '+' : '-'}₹
-                {Number(r.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              </td>
-              <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                    FREQ_COLOR[r.frequency] ?? 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {r.frequency}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-gray-500">
-                {r.next_run_date
-                  ? new Date(r.next_run_date).toLocaleDateString('en-IN')
-                  : '—'}
-              </td>
-              <td className="px-4 py-3 text-gray-500">
-                {SOURCE_LABEL[r.payment_source] ?? r.payment_source}
-              </td>
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <ToggleSwitch
-                    checked={r.is_active}
-                    onChange={() => onToggle(r)}
-                    disabled={toggling === r.id}
-                  />
-                  <span className="text-xs text-gray-500">
-                    {toggling === r.id ? '…' : r.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-              </td>
-              <td className="px-4 py-3 text-right whitespace-nowrap">
-                <button
-                  onClick={() => onEdit(r)}
-                  className="text-indigo-500 hover:text-indigo-700 text-xs font-medium mr-3"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(r)}
-                  className="text-red-400 hover:text-red-600 text-xs font-medium"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 110px 100px 110px 110px 100px 90px', alignItems: 'center', padding: '10px 20px', background: 'rgba(79,70,229,0.04)', borderBottom: '1.5px solid rgba(79,70,229,0.08)' }}>
+        {cols.map(c => <span key={c} style={{ fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.75rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c}</span>)}
+      </div>
+      {rules.map((r, i) => {
+        const freq = freqBadge[r.frequency] || { bg: '#F3F4F6', color: '#6B7280', border: '#E5E7EB' };
+        return (
+          <div key={r.id} style={{ display: 'grid', gridTemplateColumns: '1fr 90px 110px 100px 110px 110px 100px 90px', alignItems: 'center', padding: '12px 20px', borderBottom: i < rules.length - 1 ? '1px solid #F3F4F6' : 'none', transition: 'background 0.15s', opacity: r.is_active ? 1 : 0.6 }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(79,70,229,0.025)'}
+            onMouseLeave={e => e.currentTarget.style.background = ''}>
+            <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.875rem', color: '#374151' }}>{r.category_name ?? `#${r.category_id}`}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.75rem', borderRadius: 999, padding: '3px 10px', border: '1px solid', ...(r.type === 'income' ? { background: '#ECFDF5', color: '#065F46', borderColor: '#A7F3D0' } : { background: '#FEF2F2', color: '#991B1B', borderColor: '#FECACA' }) }}>{r.type}</span>
+            <span style={{ fontFamily: '"JetBrains Mono",monospace', fontWeight: 600, fontSize: '0.9375rem', color: r.type === 'income' ? '#059669' : '#DC2626' }}>
+              {r.type === 'income' ? '+' : '-'}₹{Number(r.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', fontFamily: '"DM Sans",sans-serif', fontWeight: 600, fontSize: '0.75rem', borderRadius: 999, padding: '3px 10px', border: '1px solid', background: freq.bg, color: freq.color, borderColor: freq.border }}>{r.frequency}</span>
+            <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.8125rem', color: '#6B7280' }}>{r.next_run_date ? new Date(r.next_run_date).toLocaleDateString('en-IN') : '—'}</span>
+            <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.8125rem', color: '#6B7280' }}>{SOURCE_LABEL[r.payment_source] ?? r.payment_source}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <ToggleSwitch checked={r.is_active} onChange={() => onToggle(r)} disabled={toggling === r.id} />
+              <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: '0.75rem', color: r.is_active ? '#059669' : '#9CA3AF' }}>{toggling === r.id ? '…' : r.is_active ? 'Active' : 'Paused'}</span>
+            </div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <button onClick={() => onEdit(r)} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#4F46E5'} onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button onClick={() => onDelete(r)} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#EF4444'} onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

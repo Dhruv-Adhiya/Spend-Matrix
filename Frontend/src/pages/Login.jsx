@@ -15,7 +15,7 @@ function AuthBackground({ children }) {
         <div className="blob blob-2" />
         <div className="blob blob-3" />
       </div>
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.08) 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.4, pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.6, pointerEvents: 'none' }} />
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 440 }}>
         {children}
       </div>

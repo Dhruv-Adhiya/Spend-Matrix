@@ -10,7 +10,7 @@ export const FILTER_DEFAULTS = {
 
 const labelStyle = {
   fontFamily: '"DM Sans", sans-serif', fontWeight: 500,
-  fontSize: '0.8125rem', color: '#374151', marginBottom: 4, display: 'block',
+  fontSize: '0.8125rem', color: 'var(--color-text-sub)', marginBottom: 4, display: 'block',
 };
 
 const selectStyle = {
@@ -63,9 +63,8 @@ export default function FilterBar({ filters, onChange, search, onSearch, exportF
           <select
             value={filters.type}
             onChange={e => onChange({ ...filters, type: e.target.value, category_id: '' })}
-            style={{ ...selectStyle, width: 140 }}
-            onFocus={e => { e.target.style.borderColor = '#4F46E5'; e.target.style.boxShadow = '0 0 0 3px rgba(79,70,229,0.15)'; }}
-            onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = ''; }}
+            className="input"
+            style={{ width: 140, cursor: 'pointer' }}
           >
             <option value="">All Types</option>
             <option value="income">Income</option>
@@ -78,9 +77,8 @@ export default function FilterBar({ filters, onChange, search, onSearch, exportF
           <select
             value={filters.category_id}
             onChange={e => handle('category_id', e.target.value)}
-            style={{ ...selectStyle, width: 160 }}
-            onFocus={e => { e.target.style.borderColor = '#4F46E5'; e.target.style.boxShadow = '0 0 0 3px rgba(79,70,229,0.15)'; }}
-            onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = ''; }}
+            className="input"
+            style={{ width: 160, cursor: 'pointer' }}
           >
             <option value="">All Categories</option>
             {filteredCats.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -112,9 +110,8 @@ export default function FilterBar({ filters, onChange, search, onSearch, exportF
           <select
             value={filters.payment_source}
             onChange={e => handle('payment_source', e.target.value)}
-            style={{ ...selectStyle, width: 150 }}
-            onFocus={e => { e.target.style.borderColor = '#4F46E5'; e.target.style.boxShadow = '0 0 0 3px rgba(79,70,229,0.15)'; }}
-            onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = ''; }}
+            className="input"
+            style={{ width: 150, cursor: 'pointer' }}
           >
             <option value="">All Sources</option>
             <option value="online">Online</option>
@@ -131,9 +128,8 @@ export default function FilterBar({ filters, onChange, search, onSearch, exportF
               const [sortBy, order] = e.target.value.split('_');
               onChange({ ...filters, sortBy, order });
             }}
-            style={{ ...selectStyle, width: 150 }}
-            onFocus={e => { e.target.style.borderColor = '#4F46E5'; e.target.style.boxShadow = '0 0 0 3px rgba(79,70,229,0.15)'; }}
-            onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = ''; }}
+            className="input"
+            style={{ width: 150, cursor: 'pointer' }}
           >
             <option value="date_desc">Newest First</option>
             <option value="date_asc">Oldest First</option>
