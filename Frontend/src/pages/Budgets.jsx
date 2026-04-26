@@ -56,9 +56,8 @@ function BudgetModal({ initial, onClose, onSaved }) {
   const readonlyStyle = { width: '100%', padding: '11px 14px', fontFamily: '"DM Sans",sans-serif', fontSize: '0.9375rem', background: '#F9FAFB', border: '1.5px solid #E5E7EB', borderRadius: 10, color: '#9CA3AF' };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
-      onClick={onClose}>
-      <div className="modal-content" style={{ background: '#fff', borderRadius: 20, width: 480, maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both' }}
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" style={{ maxWidth: 520 }}
         onClick={e => e.stopPropagation()}>
 
         {/* Header */}
@@ -288,9 +287,8 @@ export default function Budgets() {
       {showModal && <BudgetModal initial={editTarget} onClose={() => { setShowModal(false); setEditTarget(null); }} onSaved={fetchBudgets} />}
 
       {deleteId !== null && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
-          onClick={() => setDeleteId(null)}>
-          <div className="modal-content" style={{ background: '#fff', borderRadius: 20, width: 380, maxWidth: '100%', padding: 28, boxShadow: '0 24px 80px rgba(0,0,0,0.20)', animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both', textAlign: 'center' }}
+        <div className="modal-overlay" onClick={() => setDeleteId(null)}>
+          <div className="modal-box" style={{ maxWidth: 420, padding: 28, textAlign: 'center' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', animation: 'countUp 0.3s ease' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>

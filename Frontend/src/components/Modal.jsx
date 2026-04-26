@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
-export default function Modal({ isOpen, onClose, title, children, width = '480px', showClose = true }) {
+export default function Modal({ isOpen, onClose, title, children, maxWidth = '520px', showClose = true }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -19,31 +19,13 @@ export default function Modal({ isOpen, onClose, title, children, width = '480px
   return (
     <div
       onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 100,
-        background: 'rgba(0,0,0,0.50)',
-        backdropFilter: 'blur(4px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 16,
-        animation: 'fadeInUp 0.15s ease both',
-      }}
+      className="modal-overlay"
     >
       <div
         ref={containerRef}
         onClick={e => e.stopPropagation()}
-        className="modal-content"
-        style={{
-          background: '#fff',
-          borderRadius: 20,
-          width,
-          maxWidth: 'calc(100vw - 32px)',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.20), 0 8px 24px rgba(0,0,0,0.10)',
-          animation: 'slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both',
-          scrollbarWidth: 'thin',
-          scrollbarColor: 'rgba(79,70,229,0.2) transparent',
-        }}
+        className="modal-box"
+        style={{ maxWidth }}
       >
         {title && (
           <div style={{
