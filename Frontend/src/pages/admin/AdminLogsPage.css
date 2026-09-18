@@ -1,0 +1,36 @@
+.log-table th:last-child {
+  width: 50%; /* Give details block more room */
+}
+
+.log-details-block {
+  margin: 0;
+  padding: 0.75rem;
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-sm);
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.log-details-block.mobile {
+  width: 100%;
+}
+
+.admin-pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-pagination-controls .page-info {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}

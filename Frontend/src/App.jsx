@@ -16,6 +16,18 @@ import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { CategoriesPage } from './pages/categories/CategoriesPage';
 import { TransactionsPage } from './pages/transactions/TransactionsPage';
 import { BudgetsPage } from './pages/budgets/BudgetsPage';
+import { AnalyticsPage } from './pages/analytics/AnalyticsPage';
+import { RecurringPage } from './pages/recurring/RecurringPage';
+import { NotificationsPage } from './pages/notifications/NotificationsPage';
+import { SettingsPage } from './pages/settings/SettingsPage';
+import { ExportPage } from './pages/export/ExportPage';
+import { ProfilePage } from './pages/profile/ProfilePage';
+import { AdminLayout } from './components/layout/AdminLayout';
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
+import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+import { AdminTransactionsPage } from './pages/admin/AdminTransactionsPage';
+import { AdminRecurringPage } from './pages/admin/AdminRecurringPage';
+import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 
 // Mock Pages for remaining unbuilt phases
 const PlaceholderPage = ({ title }) => (
@@ -55,19 +67,19 @@ function App() {
           <Route path="/transactions" element={<ProtectedRoute><MainLayout><TransactionsPage /></MainLayout></ProtectedRoute>} />
           <Route path="/categories" element={<ProtectedRoute><MainLayout><CategoriesPage /></MainLayout></ProtectedRoute>} />
           <Route path="/budgets" element={<ProtectedRoute><MainLayout><BudgetsPage /></MainLayout></ProtectedRoute>} />
-          <Route path="/analytics" element={<ProtectedRoute><MainLayout><PlaceholderPage title="Analytics" /></MainLayout></ProtectedRoute>} />
-          <Route path="/recurring" element={<ProtectedRoute><MainLayout><PlaceholderPage title="Recurring Transactions" /></MainLayout></ProtectedRoute>} />
-          <Route path="/notifications" element={<ProtectedRoute><MainLayout><PlaceholderPage title="Notifications" /></MainLayout></ProtectedRoute>} />
-          <Route path="/export" element={<ProtectedRoute><MainLayout><PlaceholderPage title="Export Data" /></MainLayout></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><MainLayout><PlaceholderPage title="Settings" /></MainLayout></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><MainLayout><PlaceholderPage title="Profile" /></MainLayout></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute><MainLayout><AnalyticsPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/recurring" element={<ProtectedRoute><MainLayout><RecurringPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><MainLayout><NotificationsPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/export" element={<ProtectedRoute><MainLayout><ExportPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><MainLayout><SettingsPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><MainLayout><ProfilePage /></MainLayout></ProtectedRoute>} />
 
           {/* Admin Routes */}
-          <Route path="/admin/dashboard" element={<AdminRoute><MainLayout><PlaceholderPage title="Admin Dashboard" /></MainLayout></AdminRoute>} />
-          <Route path="/admin/users" element={<AdminRoute><MainLayout><PlaceholderPage title="Manage Users" /></MainLayout></AdminRoute>} />
-          <Route path="/admin/transactions" element={<AdminRoute><MainLayout><PlaceholderPage title="All System Transactions" /></MainLayout></AdminRoute>} />
-          <Route path="/admin/recurring" element={<AdminRoute><MainLayout><PlaceholderPage title="System Recurring Rules" /></MainLayout></AdminRoute>} />
-          <Route path="/admin/logs" element={<AdminRoute><MainLayout><PlaceholderPage title="System Logs" /></MainLayout></AdminRoute>} />
+          <Route path="/admin/dashboard" element={<AdminRoute><AdminLayout><AdminDashboardPage /></AdminLayout></AdminRoute>} />
+          <Route path="/admin/users" element={<AdminRoute><AdminLayout><AdminUsersPage /></AdminLayout></AdminRoute>} />
+          <Route path="/admin/transactions" element={<AdminRoute><AdminLayout><AdminTransactionsPage /></AdminLayout></AdminRoute>} />
+          <Route path="/admin/recurring" element={<AdminRoute><AdminLayout><AdminRecurringPage /></AdminLayout></AdminRoute>} />
+          <Route path="/admin/logs" element={<AdminRoute><AdminLayout><AdminLogsPage /></AdminLayout></AdminRoute>} />
 
           {/* Catch-all 404 */}
           <Route path="*" element={<PlaceholderPage title="404 - Not Found" />} />

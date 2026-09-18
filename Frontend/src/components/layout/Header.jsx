@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { IconButton } from '../ui/IconButton';
 import { useTheme } from '../../context/ThemeContext';
 import { Icon } from '../ui/Icon';
+import { NotificationBell } from './NotificationBell';
 import './Header.css';
 
 export function Header({ onMenuClick }) {
@@ -36,15 +37,7 @@ export function Header({ onMenuClick }) {
           variant="ghost"
         />
         
-        <div className="notification-wrapper">
-          <IconButton 
-            icon="Bell" 
-            aria-label="Notifications"
-            variant="ghost"
-          />
-          {/* Unread indicator */}
-          <span className="unread-dot"></span>
-        </div>
+        <NotificationBell />
       </div>
     </header>
   );
