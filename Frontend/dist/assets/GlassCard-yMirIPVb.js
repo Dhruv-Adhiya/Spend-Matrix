@@ -1,0 +1,1 @@
+import{n as e,o as t,t as n}from"./jsx-runtime-B7GUpQBw.js";var r=t(e(),1),i=n();function a({children:e,className:t=``,padding:n=`normal`,...r}){return(0,i.jsx)(`div`,{className:`glass-card padding-${n} ${t}`,...r,children:e})}a.propTypes={children:r.default.node.isRequired,className:r.default.string,padding:r.default.oneOf([`none`,`small`,`normal`,`large`])};export{a as t};

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: '/api', // Proxied via Vite
@@ -31,11 +32,17 @@ api.interceptors.response.use(
       // Dispatch a custom event so the AuthContext can pick it up and update state
       window.dispatchEvent(new Event('auth:unauthorized'));
     }
+
+    // Global generic error toasts for unhandled edge cases
+    if (!error.response) {
+      // Network errors (API down, DNS failed, CORS blocked)
+      toast.error('Network error. Please check your connection or try again later.', { id: 'network-err' });
+    } else if (error.response.status >= 500) {
+      // Server crashes
+      toast.error('Internal Server Error. Our team has been notified.', { id: 'server-err' });
+    }
     
-    // Optional global toast error (can be configured per request or disabled if needed)
-    // if (error.response && error.response.data && error.response.data.message) {
-    //   toast.error(error.response.data.message);
-    // }
+    // We intentionally let individual requests catch and handle 400/403/404 errors as they often have specific UI responses.
     
     return Promise.reject(error);
   }
