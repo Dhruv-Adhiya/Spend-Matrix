@@ -116,7 +116,7 @@ export const ExportPage = () => {
           </div>
           <GlassButton 
             variant="primary" 
-            icon={Download} 
+            icon="Download" 
             onClick={handleExportCSV}
             isLoading={isExportingCSV}
             disabled={isExportingPDF}
@@ -136,7 +136,7 @@ export const ExportPage = () => {
           </div>
           <GlassButton 
             variant="primary" 
-            icon={Download} 
+            icon="Download" 
             onClick={handleExportPDF}
             isLoading={isExportingPDF}
             disabled={isExportingCSV}

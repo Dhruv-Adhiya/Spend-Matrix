@@ -11,7 +11,6 @@ import { Spinner } from '../../components/ui/Spinner';
 import './SettingsPage.css';
 
 export const SettingsPage = () => {
-  const { theme, setTheme } = useTheme();
   
   const [formData, setFormData] = useState({
     currency: 'INR',
@@ -92,24 +91,7 @@ export const SettingsPage = () => {
       <form onSubmit={handleSave} className="settings-form">
         <div className="settings-sections-grid">
           
-          {/* Appearance */}
-          <GlassCard className="settings-section">
-            <h3 className="section-title">Appearance</h3>
-            <p className="section-desc">Customize how SpendMatrix looks on your device.</p>
-            <div className="form-group">
-              <GlassSelect
-                label="Theme"
-                name="theme"
-                value={theme}
-                onChange={(e) => setTheme(e.target.value)}
-                options={[
-                  { value: 'dark', label: 'Dark (Glassmorphism)' },
-                  { value: 'light', label: 'Light' }
-                ]}
-              />
-              <span className="help-text">Theme changes apply instantly across the app.</span>
-            </div>
-          </GlassCard>
+          {/* Appearance removed */}
 
           {/* Currency */}
           <GlassCard className="settings-section">
@@ -195,7 +177,7 @@ export const SettingsPage = () => {
         </div>
 
         <div className="settings-actions">
-          <GlassButton type="submit" variant="primary" icon={Save} isLoading={isSaving}>
+          <GlassButton type="submit" variant="primary" icon="Save" isLoading={isSaving}>
             Save Settings
           </GlassButton>
         </div>

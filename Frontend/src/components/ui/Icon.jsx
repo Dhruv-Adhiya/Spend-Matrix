@@ -50,7 +50,11 @@ const iconMap = {
   MoreVertical: 'More',
   AlertCircle: 'InfoCircle',
   ChevronDown: 'ArrowDown2',
-  ChevronUp: 'ArrowUp2'
+  ChevronUp: 'ArrowUp2',
+  Save: 'Save2',
+  Target: 'Radar',
+  AlertTriangle: 'Warning2',
+  FileSpreadsheet: 'TableDocument'
 };
 
 /**
@@ -66,7 +70,7 @@ export function Icon({ name, size = 20, className = '', variant = 'Linear', ...p
     return <span className={`fallback-icon ${className}`} style={{ width: size, height: size }} />;
   }
 
-  return <IconComponent size={size} className={`icon ${className}`} variant={variant} {...props} />;
+  return <IconComponent size={size} color="currentColor" className={`icon ${className}`} variant={variant} {...props} />;
 }
 
 Icon.propTypes = {

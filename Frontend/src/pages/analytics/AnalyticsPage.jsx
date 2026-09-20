@@ -114,7 +114,7 @@ export const AnalyticsPage = () => {
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
             options={monthOptions}
-            icon={Calendar}
+            icon="Calendar"
           />
           <GlassSelect
             value={selectedYear}

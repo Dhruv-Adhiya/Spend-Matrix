@@ -104,7 +104,7 @@ export const RecurringPage = () => {
             Manage your automated transaction tracking. The backend system runs these rules on schedule based on the frequency.
           </p>
         </div>
-        <GlassButton icon={Plus} variant="primary" onClick={() => handleOpenForm()}>
+        <GlassButton icon="Plus" variant="primary" onClick={() => handleOpenForm()}>
           Add New Rule
         </GlassButton>
       </div>
@@ -121,7 +121,7 @@ export const RecurringPage = () => {
               description="You have not set up any automated tracking rules yet. Create one to let the system log regular expenses or income for you."
               icon="calendar"
               actionButton={
-                <GlassButton icon={Plus} variant="primary" onClick={() => handleOpenForm()}>
+                <GlassButton icon="Plus" variant="primary" onClick={() => handleOpenForm()}>
                   Create Rule
                 </GlassButton>
               }

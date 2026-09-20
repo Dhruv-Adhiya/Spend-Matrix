@@ -7,7 +7,6 @@ import { NotificationBell } from './NotificationBell';
 import './Header.css';
 
 export function Header({ onMenuClick }) {
-  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
   // Simple title mapping based on route
@@ -30,13 +29,6 @@ export function Header({ onMenuClick }) {
       </div>
 
       <div className="header-right">
-        <IconButton 
-          icon={theme === 'dark' ? 'Sun' : 'Moon'} 
-          onClick={toggleTheme} 
-          aria-label="Toggle theme"
-          variant="ghost"
-        />
-        
         <NotificationBell />
       </div>
     </header>
