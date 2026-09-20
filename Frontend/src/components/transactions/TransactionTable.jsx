@@ -1,17 +1,16 @@
 import PropTypes from 'prop-types';
 import { GlassCard } from '../ui/GlassCard';
+import { Badge } from '../ui/Badge';
+import { GlassButton } from '../ui/GlassButton';
+import { Icon } from '../ui/Icon';
 import { IconButton } from '../ui/IconButton';
 import { EmptyState } from '../ui/EmptyState';
+import { useSettings } from '../../context/SettingsContext';
 import './TransactionTable.css';
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
-};
-
 export function TransactionTable({ transactions, onEdit, onDelete, onAdd }) {
+  const { formatCurrency } = useSettings();
+
   if (!transactions || transactions.length === 0) {
     return (
       <EmptyState

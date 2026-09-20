@@ -4,9 +4,11 @@ import { adminService } from '../../services/adminService';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Spinner } from '../../components/ui/Spinner';
 import { Badge } from '../../components/ui/Badge';
+import { useSettings } from '../../context/SettingsContext';
 import './AdminTable.css'; // Shared table styles
 
 export const AdminTransactionsPage = () => {
+  const { formatCurrency } = useSettings();
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -23,10 +25,6 @@ export const AdminTransactionsPage = () => {
     };
     fetchTransactions();
   }, []);
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
-  };
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';

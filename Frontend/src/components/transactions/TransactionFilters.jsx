@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { GlassInput } from '../ui/GlassInput';
+import { GlassSelect } from '../ui/GlassSelect';
 import { GlassButton } from '../ui/GlassButton';
 import { Icon } from '../ui/Icon';
 import './TransactionFilters.css';
@@ -23,29 +24,29 @@ export function TransactionFilters({ filters, setFilters, categories, onReset })
       <div className="filters-row">
         <div className="filter-group">
           <label className="filter-label">Type</label>
-          <select 
-            className="glass-select"
+          <GlassSelect
+            name="type"
             value={filters.type}
             onChange={(e) => handleFilterChange('type', e.target.value)}
-          >
-            <option value="">All Types</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
+            options={[
+              { value: '', label: 'All Types' },
+              { value: 'income', label: 'Income' },
+              { value: 'expense', label: 'Expense' }
+            ]}
+          />
         </div>
 
         <div className="filter-group">
           <label className="filter-label">Category</label>
-          <select 
-            className="glass-select"
+          <GlassSelect
+            name="category_id"
             value={filters.category_id}
             onChange={(e) => handleFilterChange('category_id', e.target.value)}
-          >
-            <option value="">All Categories</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
+            options={[
+              { value: '', label: 'All Categories' },
+              ...categories.map(cat => ({ value: cat.id, label: cat.name }))
+            ]}
+          />
         </div>
 
         <div className="filter-group">

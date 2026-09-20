@@ -2,15 +2,8 @@ import PropTypes from 'prop-types';
 import { GlassCard } from '../ui/GlassCard';
 import { Icon } from '../ui/Icon';
 import { IconButton } from '../ui/IconButton';
+import { useSettings } from '../../context/SettingsContext';
 import './BudgetCard.css';
-
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0
-  }).format(amount);
-};
 
 // Helper to map category names to icons
 const getCategoryIcon = (categoryName = '') => {
@@ -25,6 +18,7 @@ const getCategoryIcon = (categoryName = '') => {
 };
 
 export function BudgetCard({ budget, onEdit, onDelete }) {
+  const { formatCurrency } = useSettings();
   const { category_name, amount, spent_amount, percentage_used, remaining } = budget;
   
   // Cap visual percentage at 100% for the bar

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 // Removed lucide-react
 import toast from 'react-hot-toast';
 import { settingsService } from '../../services/settingsService';
+import { useSettings } from '../../context/SettingsContext';
 import { useTheme } from '../../context/ThemeContext';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { GlassButton } from '../../components/ui/GlassButton';
@@ -11,6 +12,7 @@ import { Spinner } from '../../components/ui/Spinner';
 import './SettingsPage.css';
 
 export const SettingsPage = () => {
+  const { refreshSettings } = useSettings();
   
   const [formData, setFormData] = useState({
     currency: 'INR',
@@ -63,6 +65,7 @@ export const SettingsPage = () => {
     setIsSaving(true);
     try {
       await settingsService.updateSettings(formData);
+      await refreshSettings();
       toast.success('Settings saved successfully');
     } catch (err) {
       toast.error('Failed to save settings');

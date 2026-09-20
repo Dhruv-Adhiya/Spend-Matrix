@@ -1,14 +1,15 @@
 import PropTypes from 'prop-types';
-// Removed lucide-react
 import { GlassCard } from '../ui/GlassCard';
-import { IconButton } from '../ui/IconButton';
 import { Badge } from '../ui/Badge';
+import { GlassButton } from '../ui/GlassButton';
+import { Icon } from '../ui/Icon';
+import { EmptyState } from '../ui/EmptyState';
+import { IconButton } from '../ui/IconButton';
+import { useSettings } from '../../context/SettingsContext';
 import './RecurringTable.css';
 
-export const RecurringTable = ({ rules, onEdit, onDelete }) => {
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
-  };
+export function RecurringTable({ rules, onEdit, onDelete, onAdd }) {
+  const { formatCurrency } = useSettings();
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -70,7 +71,7 @@ export const RecurringTable = ({ rules, onEdit, onDelete }) => {
                     <td>
                       <Badge 
                         type={rule.is_active ? 'success' : 'error'} 
-                        text={rule.is_active ? 'Active' : 'Inactive'} 
+                        text={rule.is_active ? 'Active' : 'Inactive'}
                       />
                     </td>
                     <td className="actions-col">
@@ -107,18 +108,18 @@ export const RecurringTable = ({ rules, onEdit, onDelete }) => {
                 <span className="rule-desc">{rule.description}</span>
                 <Badge 
                   type={rule.is_active ? 'success' : 'error'} 
-                  text={rule.is_active ? 'Active' : 'Inactive'} 
+                  text={rule.is_active ? 'Active' : 'Inactive'}
                 />
               </div>
               <div className="action-buttons">
                 <IconButton 
-                  icon={Edit2} 
+                  icon="Edit2" 
                   onClick={() => onEdit(rule)} 
                   aria-label="Edit Rule"
                   size="small"
                 />
                 <IconButton 
-                  icon={Trash2} 
+                  icon="Trash2" 
                   onClick={() => onDelete(rule)} 
                   aria-label="Delete Rule"
                   variant="danger"

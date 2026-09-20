@@ -7,9 +7,11 @@ import { Spinner } from '../../components/ui/Spinner';
 import { IconButton } from '../../components/ui/IconButton';
 import { Badge } from '../../components/ui/Badge';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useSettings } from '../../context/SettingsContext';
 import './AdminTable.css'; // Shared table styles
 
 export const AdminRecurringPage = () => {
+  const { formatCurrency } = useSettings();
   const [rules, setRules] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRule, setSelectedRule] = useState(null);
@@ -48,10 +50,6 @@ export const AdminRecurringPage = () => {
       setIsToggleConfirmOpen(false);
       setSelectedRule(null);
     }
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
   };
 
   const formatDate = (dateString) => {

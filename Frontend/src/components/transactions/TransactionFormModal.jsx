@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from '../ui/Modal';
 import { GlassInput } from '../ui/GlassInput';
+import { GlassSelect } from '../ui/GlassSelect';
 import { GlassButton } from '../ui/GlassButton';
 
 export function TransactionFormModal({ isOpen, onClose, onSubmit, initialData, categories, isLoading }) {
@@ -158,39 +159,28 @@ export function TransactionFormModal({ isOpen, onClose, onSubmit, initialData, c
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-3)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-1)' }}>
-            <label style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-              Category
-            </label>
-            <select 
-              className="glass-select"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              required
-              style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border-glass)', color: 'var(--color-text-primary)', padding: '10px 12px', borderRadius: 'var(--radius-md)' }}
-            >
-              <option value="">Select category</option>
-              {filteredCategories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-1)' }}>
-            <label style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-              Payment Source
-            </label>
-            <select 
-              className="glass-select"
-              value={paymentSource}
-              onChange={(e) => setPaymentSource(e.target.value)}
-              style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border-glass)', color: 'var(--color-text-primary)', padding: '10px 12px', borderRadius: 'var(--radius-md)' }}
-            >
-              <option value="cash">Cash</option>
-              <option value="credit_card">Credit Card</option>
-              <option value="debit_card">Debit Card</option>
-              <option value="bank_transfer">Bank Transfer</option>
-            </select>
-          </div>
+          <GlassSelect
+            label="Category"
+            name="category_id"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            options={[
+              { value: '', label: 'Select category' },
+              ...filteredCategories.map(cat => ({ value: cat.id, label: cat.name }))
+            ]}
+          />
+          <GlassSelect
+            label="Payment Source"
+            name="payment_source"
+            value={paymentSource}
+            onChange={(e) => setPaymentSource(e.target.value)}
+            options={[
+              { value: 'cash', label: 'Cash' },
+              { value: 'credit_card', label: 'Credit Card' },
+              { value: 'debit_card', label: 'Debit Card' },
+              { value: 'bank_transfer', label: 'Bank Transfer' }
+            ]}
+          />
         </div>
 
         <GlassInput

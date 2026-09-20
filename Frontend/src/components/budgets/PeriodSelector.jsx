@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { IconButton } from '../ui/IconButton';
+import { GlassSelect } from '../ui/GlassSelect';
 import './PeriodSelector.css';
 
 const MONTHS = [
@@ -40,25 +41,19 @@ export function PeriodSelector({ month, year, onMonthChange, onYearChange }) {
       />
       
       <div className="period-dropdowns">
-        <select 
-          className="period-select"
+        <GlassSelect
+          name="month"
           value={month}
           onChange={(e) => onMonthChange(Number(e.target.value))}
-        >
-          {MONTHS.map((m, index) => (
-            <option key={m} value={index + 1}>{m}</option>
-          ))}
-        </select>
+          options={MONTHS.map((m, index) => ({ value: index + 1, label: m }))}
+        />
 
-        <select 
-          className="period-select"
+        <GlassSelect
+          name="year"
           value={year}
           onChange={(e) => onYearChange(Number(e.target.value))}
-        >
-          {years.map(y => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
+          options={years.map(y => ({ value: y, label: String(y) }))}
+        />
       </div>
 
       <IconButton 

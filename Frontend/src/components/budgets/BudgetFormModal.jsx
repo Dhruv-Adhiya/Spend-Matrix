@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from '../ui/Modal';
 import { GlassInput } from '../ui/GlassInput';
+import { GlassSelect } from '../ui/GlassSelect';
 import { GlassButton } from '../ui/GlassButton';
 import api from '../../services/api';
 
@@ -85,19 +86,16 @@ export function BudgetFormModal({ isOpen, onClose, onSubmit, initialData, curren
           <label style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
             Category
           </label>
-          <select 
-            className="glass-select"
+          <GlassSelect
+            name="category_id"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            required
-            disabled={!!initialData || loadingCategories} // Don't allow changing category on edit, it acts as an upsert per category
-            style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border-glass)', color: 'var(--color-text-primary)', padding: '10px 12px', borderRadius: 'var(--radius-md)' }}
-          >
-            <option value="">{loadingCategories ? 'Loading...' : 'Select category'}</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
+            disabled={!!initialData || loadingCategories}
+            options={[
+              { value: '', label: loadingCategories ? 'Loading...' : 'Select category' },
+              ...categories.map(cat => ({ value: cat.id, label: cat.name }))
+            ]}
+          />
         </div>
 
         <GlassInput

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { GlassCard } from '../ui/GlassCard';
 import { Icon } from '../ui/Icon';
-import { formatCurrency } from './BalanceHero';
+import { useSettings } from '../../context/SettingsContext';
 import './RecentTransactions.css';
 
 // Helper to map category names to icons (in a real app, this might come from DB)
@@ -18,6 +18,8 @@ const getCategoryIcon = (categoryName = '') => {
 };
 
 export function RecentTransactions({ transactions }) {
+  const { formatCurrency } = useSettings();
+
   return (
     <GlassCard padding="normal" className="recent-transactions-card">
       <div className="recent-header">

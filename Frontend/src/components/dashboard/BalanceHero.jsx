@@ -1,16 +1,10 @@
 import PropTypes from 'prop-types';
 import { GlassCard } from '../ui/GlassCard';
+import { useSettings } from '../../context/SettingsContext';
 import './BalanceHero.css';
 
-// Utility for formatting currency (can be moved to a generic utils file later)
-export const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount || 0);
-};
-
 export function BalanceHero({ balance, income, expense }) {
+  const { formatCurrency } = useSettings();
   return (
     <GlassCard className="balance-hero" padding="large">
       <div className="balance-hero-content">

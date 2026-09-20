@@ -1,15 +1,10 @@
 import PropTypes from 'prop-types';
 import { GlassCard } from '../ui/GlassCard';
+import { useSettings } from '../../context/SettingsContext';
 import './BudgetSummary.css';
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
-};
-
 export function BudgetSummary({ totalBudget, totalSpent, remaining }) {
+  const { formatCurrency } = useSettings();
   const isOverBudget = totalSpent > totalBudget;
   const utilizationPercentage = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
   
