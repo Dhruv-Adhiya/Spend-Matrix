@@ -7,12 +7,13 @@ import { CategoryDonutChart } from '../../components/analytics/CategoryDonutChar
 import { BudgetVsActualChart } from '../../components/analytics/BudgetVsActualChart';
 import { DailyExpenseChart } from '../../components/analytics/DailyExpenseChart';
 import { PaymentSourceChart } from '../../components/analytics/PaymentSourceChart';
+import { PeriodSelector } from '../../components/budgets/PeriodSelector';
 import './AnalyticsPage.css';
 
 export const AnalyticsPage = () => {
   const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState((currentDate.getMonth() + 1).toString());
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
 
   // State for each chart
   const [monthlySummary, setMonthlySummary] = useState({ data: null, isLoading: true, error: null });
@@ -20,28 +21,6 @@ export const AnalyticsPage = () => {
   const [budgetVsActual, setBudgetVsActual] = useState({ data: null, isLoading: true, error: null });
   const [dailyExpense, setDailyExpense] = useState({ data: null, isLoading: true, error: null });
   const [paymentSource, setPaymentSource] = useState({ data: null, isLoading: true, error: null });
-
-  // Generate year options (current year down to 5 years ago)
-  const currentY = currentDate.getFullYear();
-  const yearOptions = Array.from({ length: 6 }, (_, i) => {
-    const year = (currentY - i).toString();
-    return { value: year, label: year };
-  });
-
-  const monthOptions = [
-    { value: '1', label: 'January' },
-    { value: '2', label: 'February' },
-    { value: '3', label: 'March' },
-    { value: '4', label: 'April' },
-    { value: '5', label: 'May' },
-    { value: '6', label: 'June' },
-    { value: '7', label: 'July' },
-    { value: '8', label: 'August' },
-    { value: '9', label: 'September' },
-    { value: '10', label: 'October' },
-    { value: '11', label: 'November' },
-    { value: '12', label: 'December' }
-  ];
 
   const fetchMonthlySummary = useCallback(async () => {
     setMonthlySummary(prev => ({ ...prev, isLoading: true, error: null }));
@@ -110,16 +89,11 @@ export const AnalyticsPage = () => {
           <p className="page-subtitle">Gain deeper insights into your financial behavior.</p>
         </div>
         <div className="analytics-controls">
-          <GlassSelect
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            options={monthOptions}
-            icon="Calendar"
-          />
-          <GlassSelect
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
-            options={yearOptions}
+          <PeriodSelector 
+            month={selectedMonth}
+            year={selectedYear}
+            onMonthChange={setSelectedMonth}
+            onYearChange={setSelectedYear}
           />
         </div>
       </div>
