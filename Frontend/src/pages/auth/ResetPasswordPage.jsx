@@ -9,37 +9,24 @@ import toast from 'react-hot-toast';
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const urlToken = searchParams.get('token');
   const navigate = useNavigate();
 
+  const [token, setToken] = useState(urlToken || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // If no token in URL, immediately show error state
-  if (!token) {
-    return (
-      <AuthLayout title="Invalid Link" subtitle="This reset link is invalid or has expired.">
-        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-4)' }}>
-          <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-            Please request a new password reset link.
-          </p>
-          <GlassButton variant="primary" onClick={() => navigate('/forgot-password')}>
-            Request New Link
-          </GlassButton>
-        </div>
-      </AuthLayout>
-    );
-  }
+  // We removed the strict 'if (!token)' block to allow manual entry.
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
-    if (!password || !confirmPassword) {
-      setError('Please fill in all fields');
+    if (!token || !password || !confirmPassword) {
+      setError('Please fill in all fields including the reset token');
       return;
     }
 
@@ -77,6 +64,18 @@ export function ResetPasswordPage() {
           <div style={{ color: 'var(--color-accent-expense)', fontSize: '14px', textAlign: 'center', background: 'rgba(244, 63, 94, 0.1)', padding: '10px', borderRadius: 'var(--radius-sm)' }}>
             {error}
           </div>
+        )}
+
+        {!urlToken && (
+          <GlassInput
+            label="Reset Token"
+            type="text"
+            icon="Activity"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            placeholder="Paste your reset token here"
+            required
+          />
         )}
 
         <div style={{ position: 'relative' }}>
