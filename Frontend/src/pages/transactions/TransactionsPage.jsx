@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { GlassButton } from '../../components/ui/GlassButton';
@@ -11,6 +12,9 @@ import { TransactionFormModal } from '../../components/transactions/TransactionF
 import './TransactionsPage.css';
 
 export function TransactionsPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   // Data state
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -57,6 +61,15 @@ export function TransactionsPage() {
     };
     fetchCategories();
   }, []);
+
+  // Handle openForm state from dashboard quick actions
+  useEffect(() => {
+    if (location.state?.openForm) {
+      handleOpenCreate();
+      // Clear the state so it doesn't reopen on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   // Debounce filters
   useEffect(() => {

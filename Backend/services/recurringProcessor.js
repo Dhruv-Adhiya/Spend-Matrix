@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 const { getSettings } = require('./settingsService');
+const { notifyRecurringExecuted } = require('./notificationService');
 
 const getNextRunDate = (currentDate, frequency) => {
   const date = new Date(currentDate);
@@ -77,6 +78,9 @@ const processRecurring = async () => {
           );
 
           runDate = nextDate;
+          
+          // Notify the user about the execution
+          notifyRecurringExecuted(rule.user_id, rule, runDateStr);
         }
 
         processed++;
