@@ -2,7 +2,9 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const api = axios.create({
-  baseURL: '/api', // Proxied via Vite
+  baseURL: import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -41,9 +43,9 @@ api.interceptors.response.use(
       // Server crashes
       toast.error('Internal Server Error. Our team has been notified.', { id: 'server-err' });
     }
-    
+
     // We intentionally let individual requests catch and handle 400/403/404 errors as they often have specific UI responses.
-    
+
     return Promise.reject(error);
   }
 );
