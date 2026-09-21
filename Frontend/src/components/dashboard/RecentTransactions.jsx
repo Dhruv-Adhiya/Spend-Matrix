@@ -46,11 +46,11 @@ export function RecentTransactions({ transactions }) {
                     <Icon name={getCategoryIcon(tx.category_name)} size={18} />
                   </div>
                   <div className="tx-info">
-                    <span className="tx-description">{tx.description || tx.category_name}</span>
+                    <span className="tx-description">{tx.description || tx.note || tx.category_name || 'No Description'}</span>
                     <div className="tx-meta">
-                      <span className="tx-category">{tx.category_name}</span>
+                      <span className="tx-category">{tx.category_name || 'Uncategorized'}</span>
                       <span className="tx-dot">•</span>
-                      <span className="tx-date">{new Date(tx.transaction_date).toLocaleDateString()}</span>
+                      <span className="tx-date">{new Date(tx.transaction_date || tx.date).toLocaleDateString()}</span>
                       {tx.payment_source && (
                         <>
                           <span className="tx-dot">•</span>

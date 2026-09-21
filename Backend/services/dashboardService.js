@@ -14,10 +14,11 @@ const getDashboardSummary = async (userId) => {
 
     // 2. Recent 5 transactions
     pool.query(
-      `SELECT id, amount, type, category_id, description AS note, transaction_date AS date
-       FROM transactions
-       WHERE user_id = $1
-       ORDER BY transaction_date DESC, id DESC
+      `SELECT t.id, t.amount, t.type, t.category_id, t.description, t.transaction_date, t.payment_source, c.name as category_name
+       FROM transactions t
+       LEFT JOIN categories c ON t.category_id = c.id
+       WHERE t.user_id = $1
+       ORDER BY t.transaction_date DESC, t.id DESC
        LIMIT 5`,
       [userId]
     ),
@@ -60,8 +61,10 @@ const getDashboardSummary = async (userId) => {
     amount: parseFloat(row.amount),
     type: row.type,
     category_id: row.category_id,
-    note: row.note || null,
-    date: row.date,
+    category_name: row.category_name || null,
+    description: row.description || null,
+    transaction_date: row.transaction_date,
+    payment_source: row.payment_source || null,
   }));
 
   const categoryBreakdown = categoryResult.rows.map(row => {
