@@ -1,1 +1,0 @@
-import{n as e,o as t,t as n}from"./jsx-runtime-B7GUpQBw.js";var r=t(e(),1),i=n();function a({text:e,type:t=`info`,className:n=``}){return(0,i.jsx)(`span`,{className:`badge badge-${t} ${n}`,children:e})}a.propTypes={text:r.default.string.isRequired,type:r.default.oneOf([`success`,`warning`,`error`,`info`]),className:r.default.string};export{a as t};
