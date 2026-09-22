@@ -1,107 +1,173 @@
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Line } from 'react-chartjs-2';
-import { ChartContainer } from './ChartContainer';
-import '../../utils/chartConfig';
-import { chartColors } from '../../utils/chartConfig';
+import api from '../../services/api';
+import { GlassCard } from '../ui/GlassCard';
+import { Skeleton } from '../ui/Skeleton';
+import { ErrorState } from '../ui/ErrorState';
+import { EmptyState } from '../ui/EmptyState';
+import { CHART_COLORS, getCommonOptions } from '../../utils/chartConfig';
+import { useTheme } from '../../context/ThemeContext';
 
-export const DailyExpenseChart = ({ data, isLoading, error, onRetry }) => {
-  const chartData = useMemo(() => {
-    if (!data || !Array.isArray(data) || data.length === 0) return null;
+export function DailyExpenseChart({ month, year }) {
+  const { isDark } = useTheme();
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
     
-    // Sort data by date just in case
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await api.get(`/analytics/daily-expense?month=${month}&year=${year}`);
+        if (isMounted) {
+          setData(res.data.data || []);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError('Failed to load daily expenses');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [month, year]);
+
+  const chartData = useMemo(() => {
+    if (!data || data.length === 0) return null;
+    
+    // Sort by date just in case
     const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
     
+    const labels = sortedData.map(item => {
+      // Format to just day number (e.g. "15") for a cleaner x-axis
+      return new Date(item.date).getDate();
+    });
+    
+    const amounts = sortedData.map(item => item.total_spent);
+
     return {
-      labels: sortedData.map(item => {
-        // Just extract the day if it's a full date string like "2023-10-15"
-        const d = new Date(item.date || item.transaction_date);
-        return isNaN(d.getTime()) ? (item.date || item.transaction_date || '') : d.getDate().toString();
-      }),
+      labels,
       datasets: [
         {
-          label: 'Daily Expense',
-          data: sortedData.map(item => item.total || item.amount || 0),
-          borderColor: chartColors.primary,
-          backgroundColor: 'rgba(139, 92, 246, 0.1)', // primary with opacity
+          label: 'Daily Spent',
+          data: amounts,
+          borderColor: CHART_COLORS.expense,
+          backgroundColor: isDark ? 'rgba(244, 63, 94, 0.1)' : 'rgba(244, 63, 94, 0.2)',
           borderWidth: 2,
-          pointBackgroundColor: chartColors.primary,
-          pointBorderColor: 'rgba(255,255,255,0.8)',
-          pointBorderWidth: 1,
-          pointRadius: 3,
-          pointHoverRadius: 5,
+          pointBackgroundColor: CHART_COLORS.expense,
+          pointBorderColor: isDark ? '#1E293B' : '#FFFFFF',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
           fill: true,
-          tension: 0.3 // Smooth curves
+          tension: 0.4 // Smooth curve
         }
       ]
     };
-  }, [data]);
+  }, [data, isDark]);
 
-  const options = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    plugins: {
-      legend: {
-        display: false // Hide legend since it's just one line
+  const options = useMemo(() => {
+    const baseOptions = getCommonOptions(isDark);
+    return {
+      ...baseOptions,
+      plugins: {
+        ...baseOptions.plugins,
+        legend: { display: false },
+        tooltip: {
+          ...baseOptions.plugins.tooltip,
+          callbacks: {
+            title: function(context) {
+              const day = context[0].label;
+              return `${new Date(year, month - 1, day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            },
+            label: function(context) {
+              return `Spent: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y)}`;
+            }
+          }
+        }
       },
-      tooltip: {
-        callbacks: {
-          title: (tooltipItems) => `Day ${tooltipItems[0].label}`,
-          label: (context) => {
-            let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
+      scales: {
+        ...baseOptions.scales,
+        y: {
+          ...baseOptions.scales.y,
+          beginAtZero: true,
+          ticks: {
+            ...baseOptions.scales.y.ticks,
+            callback: function(value) {
+              if (value >= 1000) {
+                return '$' + (value / 1000).toFixed(1) + 'k';
+              }
+              return '$' + value;
             }
-            if (context.parsed.y !== null) {
-              label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(context.parsed.y);
-            }
-            return label;
+          }
+        },
+        x: {
+          ...baseOptions.scales.x,
+          title: {
+            display: true,
+            text: 'Day of Month',
+            color: isDark ? CHART_COLORS.textSecondary : '#6B7280',
+            font: { family: "'Inter', sans-serif", size: 11 }
           }
         }
       }
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false // Cleaner look without vertical grid lines
-        }
-      },
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: (value) => {
-            if (value >= 1000) {
-              return '₹' + (value / 1000).toFixed(0) + 'k';
-            }
-            return '₹' + value;
-          }
-        }
-      }
-    }
-  }), []);
+    };
+  }, [isDark, month, year]);
 
-  const isEmpty = !data || !Array.isArray(data) || data.length === 0;
+  if (isLoading) {
+    return (
+      <GlassCard className="h-full">
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Daily Trend</h3>
+        <Skeleton height="300px" borderRadius="var(--radius-md)" />
+      </GlassCard>
+    );
+  }
+
+  if (error) {
+    return (
+      <GlassCard className="h-full">
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Daily Trend</h3>
+        <ErrorState message={error} />
+      </GlassCard>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <GlassCard className="h-full">
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Daily Trend</h3>
+        <EmptyState 
+          icon="TrendingUp" 
+          title="No Daily Data" 
+          description="No expenses found to chart daily trends." 
+        />
+      </GlassCard>
+    );
+  }
 
   return (
-    <ChartContainer 
-      title="Daily Expense Trend" 
-      isLoading={isLoading} 
-      error={error} 
-      isEmpty={isEmpty} 
-      onRetry={onRetry}
-    >
-      {chartData && <Line data={chartData} options={options} />}
-    </ChartContainer>
+    <GlassCard className="h-full">
+      <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)', margin: 0 }}>Daily Trend</h3>
+      <div style={{ height: '300px', position: 'relative' }}>
+        <Line data={chartData} options={options} />
+      </div>
+    </GlassCard>
   );
-};
+}
 
 DailyExpenseChart.propTypes = {
-  data: PropTypes.array,
-  isLoading: PropTypes.bool,
-  error: PropTypes.object,
-  onRetry: PropTypes.func
+  month: PropTypes.number.isRequired,
+  year: PropTypes.number.isRequired,
 };

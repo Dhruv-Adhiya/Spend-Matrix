@@ -75,10 +75,6 @@
   --color-hover-glow: 0 0 15px rgba(66, 133, 244, 0.15);
 }
 
-html, body {
-  overflow-x: hidden;
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -111,31 +107,6 @@ h4 { font-size: 16px; }
 *:focus-visible {
   outline: 2px solid var(--color-accent-primary);
   outline-offset: 2px;
-}
-
-/* Custom Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2); 
-  border-radius: var(--radius-full);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15); 
-  border-radius: var(--radius-full);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25); 
-}
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
 /* Reduced motion preference */

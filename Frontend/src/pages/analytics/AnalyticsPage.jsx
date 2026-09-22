@@ -1,152 +1,57 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Calendar } from 'lucide-react';
-import { GlassSelect } from '../../components/ui/GlassSelect';
-import { analyticsService } from '../../services/analyticsService';
-import { MonthlySummaryChart } from '../../components/analytics/MonthlySummaryChart';
-import { CategoryDonutChart } from '../../components/analytics/CategoryDonutChart';
-import { BudgetVsActualChart } from '../../components/analytics/BudgetVsActualChart';
-import { DailyExpenseChart } from '../../components/analytics/DailyExpenseChart';
-import { PaymentSourceChart } from '../../components/analytics/PaymentSourceChart';
+import { useState } from 'react';
 import { PeriodSelector } from '../../components/budgets/PeriodSelector';
+import { MonthlySummaryChart } from '../../components/analytics/MonthlySummaryChart';
+import { CategoryBreakdownChart } from '../../components/analytics/CategoryBreakdownChart';
+import { DailyExpenseChart } from '../../components/analytics/DailyExpenseChart';
+import { BudgetVsActualChart } from '../../components/analytics/BudgetVsActualChart';
+import { PaymentSourceChart } from '../../components/analytics/PaymentSourceChart';
 import './AnalyticsPage.css';
 
-export const AnalyticsPage = () => {
+export function AnalyticsPage() {
   const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
-
-  // State for each chart
-  const [monthlySummary, setMonthlySummary] = useState({ data: null, isLoading: true, error: null });
-  const [categoryBreakdown, setCategoryBreakdown] = useState({ data: null, isLoading: true, error: null });
-  const [budgetVsActual, setBudgetVsActual] = useState({ data: null, isLoading: true, error: null });
-  const [dailyExpense, setDailyExpense] = useState({ data: null, isLoading: true, error: null });
-  const [paymentSource, setPaymentSource] = useState({ data: null, isLoading: true, error: null });
-
-  const fetchMonthlySummary = useCallback(async () => {
-    setMonthlySummary(prev => ({ ...prev, isLoading: true, error: null }));
-    try {
-      const res = await analyticsService.getMonthlySummary(selectedMonth, selectedYear);
-      setMonthlySummary({ data: res.data || res, isLoading: false, error: null });
-    } catch (err) {
-      setMonthlySummary({ data: null, isLoading: false, error: err });
-    }
-  }, [selectedMonth, selectedYear]);
-
-  const fetchCategoryBreakdown = useCallback(async () => {
-    setCategoryBreakdown(prev => ({ ...prev, isLoading: true, error: null }));
-    try {
-      const res = await analyticsService.getCategoryBreakdown(selectedMonth, selectedYear);
-      setCategoryBreakdown({ data: res.data || res, isLoading: false, error: null });
-    } catch (err) {
-      setCategoryBreakdown({ data: null, isLoading: false, error: err });
-    }
-  }, [selectedMonth, selectedYear]);
-
-  const fetchBudgetVsActual = useCallback(async () => {
-    setBudgetVsActual(prev => ({ ...prev, isLoading: true, error: null }));
-    try {
-      const res = await analyticsService.getBudgetVsActual(selectedMonth, selectedYear);
-      setBudgetVsActual({ data: res.data || res, isLoading: false, error: null });
-    } catch (err) {
-      setBudgetVsActual({ data: null, isLoading: false, error: err });
-    }
-  }, [selectedMonth, selectedYear]);
-
-  const fetchDailyExpense = useCallback(async () => {
-    setDailyExpense(prev => ({ ...prev, isLoading: true, error: null }));
-    try {
-      const res = await analyticsService.getDailyExpense(selectedMonth, selectedYear);
-      setDailyExpense({ data: res.data || res, isLoading: false, error: null });
-    } catch (err) {
-      setDailyExpense({ data: null, isLoading: false, error: err });
-    }
-  }, [selectedMonth, selectedYear]);
-
-  const fetchPaymentSource = useCallback(async () => {
-    setPaymentSource(prev => ({ ...prev, isLoading: true, error: null }));
-    try {
-      const res = await analyticsService.getPaymentSourceBreakdown(selectedMonth, selectedYear);
-      setPaymentSource({ data: res.data || res, isLoading: false, error: null });
-    } catch (err) {
-      setPaymentSource({ data: null, isLoading: false, error: err });
-    }
-  }, [selectedMonth, selectedYear]);
-
-  useEffect(() => {
-    // Fetch all data independently
-    fetchMonthlySummary();
-    fetchCategoryBreakdown();
-    fetchBudgetVsActual();
-    fetchDailyExpense();
-    fetchPaymentSource();
-  }, [fetchMonthlySummary, fetchCategoryBreakdown, fetchBudgetVsActual, fetchDailyExpense, fetchPaymentSource]);
+  const [month, setMonth] = useState(currentDate.getMonth() + 1);
+  const [year, setYear] = useState(currentDate.getFullYear());
 
   return (
-    <div className="analytics-page">
-      <div className="analytics-header">
+    <div className="analytics-page animate-fade-in">
+      <div className="analytics-header mb-6">
         <div>
-          <h1 className="page-title">Analytics</h1>
-          <p className="page-subtitle">Gain deeper insights into your financial behavior.</p>
+          <h2 className="section-title">Analytics</h2>
+          <p className="section-subtitle-muted mt-1">Deep dive into your spending patterns.</p>
         </div>
-        <div className="analytics-controls">
+        
+        <div className="period-selector-wrapper">
           <PeriodSelector 
-            month={selectedMonth}
-            year={selectedYear}
-            onMonthChange={setSelectedMonth}
-            onYearChange={setSelectedYear}
+            month={month}
+            year={year}
+            onMonthChange={setMonth}
+            onYearChange={setYear}
           />
         </div>
       </div>
 
       <div className="analytics-grid">
-        {/* Full width row for Monthly Summary */}
-        <div className="chart-span-full">
-          <MonthlySummaryChart 
-            data={monthlySummary.data} 
-            isLoading={monthlySummary.isLoading} 
-            error={monthlySummary.error}
-            onRetry={fetchMonthlySummary}
-          />
+        {/* Top Row: High-level summaries */}
+        <div className="analytics-grid-col-2">
+          <MonthlySummaryChart month={month} year={year} />
+        </div>
+        <div className="analytics-grid-col-1">
+          <CategoryBreakdownChart month={month} year={year} />
         </div>
 
-        {/* Two column row for Category Donut & Daily Expense */}
-        <div className="chart-span-half">
-          <CategoryDonutChart 
-            data={categoryBreakdown.data} 
-            isLoading={categoryBreakdown.isLoading} 
-            error={categoryBreakdown.error}
-            onRetry={fetchCategoryBreakdown}
-          />
-        </div>
-        <div className="chart-span-half">
-          <DailyExpenseChart 
-            data={dailyExpense.data} 
-            isLoading={dailyExpense.isLoading} 
-            error={dailyExpense.error}
-            onRetry={fetchDailyExpense}
-          />
+        {/* Middle Row: Trend over time (spans full width on desktop) */}
+        <div className="analytics-grid-col-full">
+          <DailyExpenseChart month={month} year={year} />
         </div>
 
-        {/* Full width row for Budget vs Actual */}
-        <div className="chart-span-full">
-          <BudgetVsActualChart 
-            data={budgetVsActual.data} 
-            isLoading={budgetVsActual.isLoading} 
-            error={budgetVsActual.error}
-            onRetry={fetchBudgetVsActual}
-          />
+        {/* Bottom Row: Detailed breakdowns */}
+        <div className="analytics-grid-col-2">
+          <BudgetVsActualChart month={month} year={year} />
         </div>
-
-        {/* Half width for Payment source, leaves one empty grid slot or expands based on css */}
-        <div className="chart-span-half">
-          <PaymentSourceChart 
-            data={paymentSource.data} 
-            isLoading={paymentSource.isLoading} 
-            error={paymentSource.error}
-            onRetry={fetchPaymentSource}
-          />
+        <div className="analytics-grid-col-1">
+          <PaymentSourceChart month={month} year={year} />
         </div>
       </div>
     </div>
   );
-};
+}

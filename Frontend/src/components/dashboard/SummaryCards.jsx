@@ -1,12 +1,10 @@
 import PropTypes from 'prop-types';
 import { GlassCard } from '../ui/GlassCard';
 import { Icon } from '../ui/Icon';
-import { useSettings } from '../../context/SettingsContext';
+import { formatCurrency } from './BalanceHero';
 import './SummaryCards.css';
 
 export function SummaryCards({ income, expense, balance }) {
-  const { formatCurrency } = useSettings();
-  
   const cards = [
     {
       title: 'Total Income',

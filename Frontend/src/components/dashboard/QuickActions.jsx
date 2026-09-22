@@ -13,10 +13,18 @@ export function QuickActions() {
         <GlassButton 
           variant="primary" 
           icon="Plus" 
-          onClick={() => navigate('/transactions', { state: { openForm: true } })}
+          onClick={() => navigate('/transactions/new?type=expense')}
           className="quick-action-btn expense-action"
         >
           Add Expense
+        </GlassButton>
+        <GlassButton 
+          variant="secondary" 
+          icon="Download" 
+          onClick={() => navigate('/transactions/new?type=income')}
+          className="quick-action-btn income-action"
+        >
+          Add Income
         </GlassButton>
         <GlassButton 
           variant="secondary" 

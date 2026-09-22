@@ -20,7 +20,7 @@ export function DashboardPage() {
     setError(null);
     try {
       const response = await api.get('/dashboard/summary');
-      setData(response.data.data || response.data);
+      setData(response.data);
     } catch (err) {
       console.error('Failed to fetch dashboard data:', err);
       setError('Could not load dashboard data. Please try again.');

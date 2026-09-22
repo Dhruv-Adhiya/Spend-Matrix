@@ -1,108 +1,165 @@
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Bar } from 'react-chartjs-2';
-import { ChartContainer } from './ChartContainer';
-import '../../utils/chartConfig'; // Initialize Chart.js defaults
-import { chartColors } from '../../utils/chartConfig';
+import api from '../../services/api';
+import { GlassCard } from '../ui/GlassCard';
+import { Skeleton } from '../ui/Skeleton';
+import { ErrorState } from '../ui/ErrorState';
+import { EmptyState } from '../ui/EmptyState';
+import { CHART_COLORS, getCommonOptions } from '../../utils/chartConfig';
+import { useTheme } from '../../context/ThemeContext';
 
-export const MonthlySummaryChart = ({ data, isLoading, error, onRetry }) => {
+export function MonthlySummaryChart({ month, year }) {
+  const { isDark } = useTheme();
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await api.get(`/analytics/monthly-summary?month=${month}&year=${year}`);
+        if (isMounted) {
+          setData(res.data.data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError('Failed to load monthly summary');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [month, year]);
+
   const chartData = useMemo(() => {
     if (!data) return null;
     
-    // Handle both single object or array of objects gracefully
-    const dataArray = Array.isArray(data) ? data : [data];
-    
     return {
-      labels: dataArray.map(item => item.month || 'Selected Period'),
+      labels: ['Income', 'Expense'],
       datasets: [
         {
-          label: 'Income',
-          data: dataArray.map(item => item.totalIncome || item.income || 0),
-          backgroundColor: chartColors.income,
+          label: 'Amount ($)',
+          data: [data.total_income || 0, data.total_expense || 0],
+          backgroundColor: [
+            CHART_COLORS.income,
+            CHART_COLORS.expense
+          ],
           borderRadius: 4,
-          barPercentage: 0.6,
-          categoryPercentage: 0.8
-        },
-        {
-          label: 'Expense',
-          data: dataArray.map(item => item.totalExpense || item.expense || 0),
-          backgroundColor: chartColors.expense,
-          borderRadius: 4,
-          barPercentage: 0.6,
-          categoryPercentage: 0.8
+          barThickness: 40,
         }
       ]
     };
   }, [data]);
 
-  const options = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    plugins: {
-      legend: {
-        position: 'top',
-        align: 'end',
-        labels: {
-          usePointStyle: true,
-          boxWidth: 8
+  const options = useMemo(() => {
+    const baseOptions = getCommonOptions(isDark);
+    return {
+      ...baseOptions,
+      plugins: {
+        ...baseOptions.plugins,
+        legend: { display: false },
+        tooltip: {
+          ...baseOptions.plugins.tooltip,
+          callbacks: {
+            label: function(context) {
+              let label = context.dataset.label || '';
+              if (label) {
+                label += ': ';
+              }
+              if (context.parsed.y !== null) {
+                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+              }
+              return label;
+            }
+          }
         }
       },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
+      scales: {
+        ...baseOptions.scales,
+        y: {
+          ...baseOptions.scales.y,
+          beginAtZero: true,
+          ticks: {
+            ...baseOptions.scales.y.ticks,
+            callback: function(value) {
+              if (value >= 1000) {
+                return '$' + (value / 1000).toFixed(1) + 'k';
+              }
+              return '$' + value;
             }
-            if (context.parsed.y !== null) {
-              label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(context.parsed.y);
-            }
-            return label;
           }
         }
       }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: (value) => {
-            // Shorten large numbers (e.g., 10000 -> 10k)
-            if (value >= 1000) {
-              return '₹' + (value / 1000).toFixed(0) + 'k';
-            }
-            return '₹' + value;
-          }
-        }
-      }
-    }
-  }), []);
+    };
+  }, [isDark]);
 
-  const isEmpty = !data || (Array.isArray(data) && data.length === 0);
+  if (isLoading) {
+    return (
+      <GlassCard className="h-full">
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Monthly Summary</h3>
+        <Skeleton height="200px" borderRadius="var(--radius-md)" />
+      </GlassCard>
+    );
+  }
+
+  if (error) {
+    return (
+      <GlassCard className="h-full">
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Monthly Summary</h3>
+        <ErrorState message={error} />
+      </GlassCard>
+    );
+  }
+
+  if (!data || (data.total_income === 0 && data.total_expense === 0)) {
+    return (
+      <GlassCard className="h-full">
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Monthly Summary</h3>
+        <EmptyState 
+          icon="Wallet" 
+          title="No Data" 
+          description="No transactions found for this month." 
+        />
+      </GlassCard>
+    );
+  }
 
   return (
-    <ChartContainer 
-      title="Income vs Expense" 
-      isLoading={isLoading} 
-      error={error} 
-      isEmpty={isEmpty} 
-      onRetry={onRetry}
-    >
-      {chartData && <Bar data={chartData} options={options} />}
-    </ChartContainer>
+    <GlassCard className="h-full">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--spacing-4)' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: 600, margin: 0 }}>Monthly Summary</h3>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: '14px', color: 'var(--color-text-secondary)' }}>Net Balance</div>
+          <div style={{ 
+            fontSize: '18px', 
+            fontWeight: 700, 
+            color: (data.total_income - data.total_expense) >= 0 ? 'var(--color-accent-income)' : 'var(--color-accent-expense)' 
+          }}>
+            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data.total_income - data.total_expense)}
+          </div>
+        </div>
+      </div>
+      <div style={{ height: '200px', position: 'relative' }}>
+        <Bar data={chartData} options={options} />
+      </div>
+    </GlassCard>
   );
-};
+}
 
 MonthlySummaryChart.propTypes = {
-  data: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.object
-  ]),
-  isLoading: PropTypes.bool,
-  error: PropTypes.object,
-  onRetry: PropTypes.func
+  month: PropTypes.number.isRequired,
+  year: PropTypes.number.isRequired,
 };

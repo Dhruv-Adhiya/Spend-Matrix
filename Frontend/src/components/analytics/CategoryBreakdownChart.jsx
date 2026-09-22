@@ -9,7 +9,7 @@ import { EmptyState } from '../ui/EmptyState';
 import { generateCategoricalColors, getCircularOptions } from '../../utils/chartConfig';
 import { useTheme } from '../../context/ThemeContext';
 
-export function PaymentSourceChart({ month, year }) {
+export function CategoryBreakdownChart({ month, year }) {
   const { isDark } = useTheme();
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,13 +22,13 @@ export function PaymentSourceChart({ month, year }) {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await api.get(`/analytics/payment-source-breakdown?month=${month}&year=${year}`);
+        const res = await api.get(`/analytics/category-breakdown?month=${month}&year=${year}`);
         if (isMounted) {
           setData(res.data.data || []);
         }
       } catch (err) {
         if (isMounted) {
-          setError('Failed to load payment sources');
+          setError('Failed to load category breakdown');
         }
       } finally {
         if (isMounted) {
@@ -47,16 +47,9 @@ export function PaymentSourceChart({ month, year }) {
   const chartData = useMemo(() => {
     if (!data || data.length === 0) return null;
     
-    // The API might return raw payment_source strings (e.g., 'credit_card'). We format them cleanly.
-    const formatSource = (source) => {
-      if (!source) return 'Unknown';
-      return source.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    };
-
-    const labels = data.map(item => formatSource(item.payment_source));
+    const labels = data.map(item => item.category_name);
     const amounts = data.map(item => item.total_spent);
-    // Reverse categorical colors so it doesn't look identical to the category breakdown chart
-    const backgroundColors = generateCategoricalColors(data.length).reverse();
+    const backgroundColors = generateCategoricalColors(data.length);
 
     return {
       labels,
@@ -75,7 +68,6 @@ export function PaymentSourceChart({ month, year }) {
     const baseOptions = getCircularOptions(isDark);
     return {
       ...baseOptions,
-      cutout: '60%', // slightly different style than category breakdown
       plugins: {
         ...baseOptions.plugins,
         tooltip: {
@@ -86,6 +78,7 @@ export function PaymentSourceChart({ month, year }) {
               const value = context.parsed;
               const formattedValue = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
               
+              // Calculate percentage manually since dataset doesn't have it explicitly bound
               const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
               const percentage = ((value / total) * 100).toFixed(1);
               
@@ -100,7 +93,7 @@ export function PaymentSourceChart({ month, year }) {
   if (isLoading) {
     return (
       <GlassCard className="h-full">
-        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Payment Methods</h3>
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Category Breakdown</h3>
         <Skeleton height="250px" borderRadius="var(--radius-md)" />
       </GlassCard>
     );
@@ -109,7 +102,7 @@ export function PaymentSourceChart({ month, year }) {
   if (error) {
     return (
       <GlassCard className="h-full">
-        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Payment Methods</h3>
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Category Breakdown</h3>
         <ErrorState message={error} />
       </GlassCard>
     );
@@ -118,10 +111,10 @@ export function PaymentSourceChart({ month, year }) {
   if (!data || data.length === 0) {
     return (
       <GlassCard className="h-full">
-        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Payment Methods</h3>
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Category Breakdown</h3>
         <EmptyState 
-          icon="CreditCard" 
-          title="No Data" 
+          icon="PieChart" 
+          title="No Categories" 
           description="No expenses found for this month." 
         />
       </GlassCard>
@@ -130,7 +123,7 @@ export function PaymentSourceChart({ month, year }) {
 
   return (
     <GlassCard className="h-full">
-      <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)', margin: 0 }}>Payment Methods</h3>
+      <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)', margin: 0 }}>Category Breakdown</h3>
       <div style={{ height: '250px', position: 'relative' }}>
         <Doughnut data={chartData} options={options} />
       </div>
@@ -138,7 +131,7 @@ export function PaymentSourceChart({ month, year }) {
   );
 }
 
-PaymentSourceChart.propTypes = {
+CategoryBreakdownChart.propTypes = {
   month: PropTypes.number.isRequired,
   year: PropTypes.number.isRequired,
 };

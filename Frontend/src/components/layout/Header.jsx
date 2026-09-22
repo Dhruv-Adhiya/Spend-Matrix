@@ -3,10 +3,10 @@ import { useLocation } from 'react-router-dom';
 import { IconButton } from '../ui/IconButton';
 import { useTheme } from '../../context/ThemeContext';
 import { Icon } from '../ui/Icon';
-import { NotificationBell } from './NotificationBell';
 import './Header.css';
 
 export function Header({ onMenuClick }) {
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
   // Simple title mapping based on route
@@ -29,7 +29,22 @@ export function Header({ onMenuClick }) {
       </div>
 
       <div className="header-right">
-        <NotificationBell />
+        <IconButton 
+          icon={theme === 'dark' ? 'Sun' : 'Moon'} 
+          onClick={toggleTheme} 
+          aria-label="Toggle theme"
+          variant="ghost"
+        />
+        
+        <div className="notification-wrapper">
+          <IconButton 
+            icon="Bell" 
+            aria-label="Notifications"
+            variant="ghost"
+          />
+          {/* Unread indicator */}
+          <span className="unread-dot"></span>
+        </div>
       </div>
     </header>
   );

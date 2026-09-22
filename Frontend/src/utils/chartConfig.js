@@ -12,7 +12,7 @@ import {
   Filler
 } from 'chart.js';
 
-// Register Chart.js components globally
+// Register all required Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -26,41 +26,127 @@ ChartJS.register(
   Filler
 );
 
-// Define global defaults matching the dark glassmorphism theme
-ChartJS.defaults.color = '#8b8b9e'; // --color-text-secondary
-ChartJS.defaults.font.family = "'Inter', sans-serif";
-ChartJS.defaults.plugins.tooltip.backgroundColor = 'rgba(18, 18, 26, 0.9)'; // --color-bg-secondary with opacity
-ChartJS.defaults.plugins.tooltip.titleColor = '#f1f1f4'; // --color-text-primary
-ChartJS.defaults.plugins.tooltip.bodyColor = '#f1f1f4';
-ChartJS.defaults.plugins.tooltip.borderColor = 'rgba(255, 255, 255, 0.08)'; // --color-border-glass
-ChartJS.defaults.plugins.tooltip.borderWidth = 1;
-ChartJS.defaults.plugins.tooltip.padding = 10;
-ChartJS.defaults.plugins.tooltip.cornerRadius = 8;
-ChartJS.defaults.plugins.tooltip.displayColors = true;
-
-// Grid line defaults for scales
-ChartJS.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.05)';
-ChartJS.defaults.scale.grid.borderColor = 'rgba(255, 255, 255, 0.05)';
-ChartJS.defaults.scale.ticks.color = '#8b8b9e';
-
-export const chartColors = {
-  primary: '#8b5cf6', // Violet
-  income: '#10b981', // Emerald
-  expense: '#f43f5e', // Rose
-  warning: '#f59e0b', // Amber
-  muted: '#4a4a5e', // Dim Gray
-  info: '#3b82f6', // Blue
-  // Palette for category donuts
-  palette: [
-    '#8b5cf6', // Violet
-    '#10b981', // Emerald
-    '#f43f5e', // Rose
-    '#f59e0b', // Amber
-    '#3b82f6', // Blue
-    '#ec4899', // Pink
-    '#14b8a6', // Teal
-    '#84cc16', // Lime
-    '#6366f1', // Indigo
-    '#d946ef', // Fuchsia
-  ]
+// Semantic colors mapping (matches CSS variables)
+export const CHART_COLORS = {
+  primary: '#8B5CF6',
+  income: '#10B981',
+  expense: '#F43F5E',
+  warning: '#F59E0B',
+  info: '#3B82F6',
+  neutral: '#6B7280',
+  grid: 'rgba(107, 114, 128, 0.1)',
+  textPrimary: 'rgba(255, 255, 255, 0.87)',
+  textSecondary: 'rgba(255, 255, 255, 0.6)',
+  tooltipBg: 'rgba(15, 23, 42, 0.9)',
 };
+
+// Generates an array of colors for pie/donut charts
+export const generateCategoricalColors = (count) => {
+  const baseColors = [
+    '#8B5CF6', // Purple
+    '#3B82F6', // Blue
+    '#0EA5E9', // Sky
+    '#10B981', // Emerald
+    '#F59E0B', // Amber
+    '#F43F5E', // Rose
+    '#D946EF', // Fuchsia
+    '#6366F1', // Indigo
+  ];
+  
+  if (count <= baseColors.length) {
+    return baseColors.slice(0, count);
+  }
+  
+  // If we need more colors, repeat with opacity
+  const extended = [];
+  for (let i = 0; i < count; i++) {
+    const color = baseColors[i % baseColors.length];
+    // Add opacity if it's a repeated color
+    extended.push(i < baseColors.length ? color : `${color}80`);
+  }
+  return extended;
+};
+
+// Common options for standard charts (Bar, Line)
+export const getCommonOptions = (isDark = true) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      labels: {
+        color: isDark ? CHART_COLORS.textSecondary : '#4B5563',
+        font: {
+          family: "'Inter', sans-serif",
+          size: 12
+        }
+      }
+    },
+    tooltip: {
+      backgroundColor: isDark ? CHART_COLORS.tooltipBg : '#FFFFFF',
+      titleColor: isDark ? '#FFFFFF' : '#111827',
+      bodyColor: isDark ? '#FFFFFF' : '#374151',
+      borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+      borderWidth: 1,
+      padding: 12,
+      cornerRadius: 8,
+      displayColors: true,
+      boxPadding: 4
+    }
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false,
+        drawBorder: false,
+      },
+      ticks: {
+        color: isDark ? CHART_COLORS.textSecondary : '#6B7280',
+        font: {
+          family: "'Inter', sans-serif",
+        }
+      }
+    },
+    y: {
+      grid: {
+        color: isDark ? CHART_COLORS.grid : 'rgba(0,0,0,0.05)',
+        drawBorder: false,
+      },
+      ticks: {
+        color: isDark ? CHART_COLORS.textSecondary : '#6B7280',
+        font: {
+          family: "'Inter', sans-serif",
+        }
+      }
+    }
+  }
+});
+
+// Common options for circular charts (Pie, Donut)
+export const getCircularOptions = (isDark = true) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  cutout: '70%',
+  plugins: {
+    legend: {
+      position: 'right',
+      labels: {
+        color: isDark ? CHART_COLORS.textSecondary : '#4B5563',
+        usePointStyle: true,
+        padding: 20,
+        font: {
+          family: "'Inter', sans-serif",
+          size: 12
+        }
+      }
+    },
+    tooltip: {
+      backgroundColor: isDark ? CHART_COLORS.tooltipBg : '#FFFFFF',
+      titleColor: isDark ? '#FFFFFF' : '#111827',
+      bodyColor: isDark ? '#FFFFFF' : '#374151',
+      borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+      borderWidth: 1,
+      padding: 12,
+      cornerRadius: 8
+    }
+  }
+});

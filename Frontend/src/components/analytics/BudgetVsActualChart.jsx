@@ -1,114 +1,164 @@
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Bar } from 'react-chartjs-2';
-import { ChartContainer } from './ChartContainer';
-import '../../utils/chartConfig';
-import { chartColors } from '../../utils/chartConfig';
+import api from '../../services/api';
+import { GlassCard } from '../ui/GlassCard';
+import { Skeleton } from '../ui/Skeleton';
+import { ErrorState } from '../ui/ErrorState';
+import { EmptyState } from '../ui/EmptyState';
+import { CHART_COLORS, getCommonOptions } from '../../utils/chartConfig';
+import { useTheme } from '../../context/ThemeContext';
 
-export const BudgetVsActualChart = ({ data, isLoading, error, onRetry }) => {
-  const chartData = useMemo(() => {
-    if (!data || !Array.isArray(data) || data.length === 0) return null;
+export function BudgetVsActualChart({ month, year }) {
+  const { isDark } = useTheme();
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
     
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await api.get(`/analytics/budget-vs-actual?month=${month}&year=${year}`);
+        if (isMounted) {
+          setData(res.data.data || []);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError('Failed to load budget comparison');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [month, year]);
+
+  const chartData = useMemo(() => {
+    if (!data || data.length === 0) return null;
+    
+    const labels = data.map(item => item.category_name);
+    const budgetAmounts = data.map(item => item.budget_amount);
+    const actualAmounts = data.map(item => item.actual_amount);
+
     return {
-      labels: data.map(item => item.category_name || `Category ${item.category_id || ''}`),
+      labels,
       datasets: [
         {
           label: 'Budget',
-          data: data.map(item => item.budget || item.budget_amount || 0),
-          backgroundColor: chartColors.info, // Use a neutral info color for budget target
+          data: budgetAmounts,
+          backgroundColor: isDark ? 'rgba(107, 114, 128, 0.5)' : 'rgba(107, 114, 128, 0.3)',
           borderRadius: 4,
-          barPercentage: 0.7,
-          categoryPercentage: 0.8
         },
         {
           label: 'Actual',
-          data: data.map(item => item.spent || item.spent_amount || 0),
-          backgroundColor: data.map(item => {
-            const spent = item.spent || item.spent_amount || 0;
-            const budget = item.budget || item.budget_amount || 0;
-            // Red if over budget, Yellow if near (80%), else primary
-            if (budget > 0 && spent > budget) return chartColors.expense;
-            if (budget > 0 && spent > budget * 0.8) return chartColors.warning;
-            return chartColors.primary;
-          }),
+          data: actualAmounts,
+          backgroundColor: CHART_COLORS.expense,
           borderRadius: 4,
-          barPercentage: 0.7,
-          categoryPercentage: 0.8
         }
       ]
     };
-  }, [data]);
+  }, [data, isDark]);
 
-  const options = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    plugins: {
-      legend: {
-        position: 'top',
-        align: 'end',
-        labels: {
-          usePointStyle: true,
-          boxWidth: 8
-        }
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
+  const options = useMemo(() => {
+    const baseOptions = getCommonOptions(isDark);
+    return {
+      ...baseOptions,
+      indexAxis: 'y', // Horizontal bar chart
+      plugins: {
+        ...baseOptions.plugins,
+        legend: {
+          ...baseOptions.plugins.legend,
+          position: 'top',
+          align: 'end',
+        },
+        tooltip: {
+          ...baseOptions.plugins.tooltip,
+          callbacks: {
+            label: function(context) {
+              const label = context.dataset.label || '';
+              const value = context.parsed.x;
+              return `${label}: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value)}`;
             }
-            if (context.parsed.y !== null) {
-              label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(context.parsed.y);
-            }
-            return label;
           }
         }
-      }
-    },
-    scales: {
-      x: {
-        ticks: {
-          maxRotation: 45,
-          minRotation: 45
-        }
       },
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: (value) => {
-            if (value >= 1000) {
-              return '₹' + (value / 1000).toFixed(0) + 'k';
+      scales: {
+        x: {
+          ...baseOptions.scales.y, // Swap grid styling for horizontal
+          beginAtZero: true,
+          ticks: {
+            ...baseOptions.scales.y.ticks,
+            callback: function(value) {
+              if (value >= 1000) {
+                return '$' + (value / 1000).toFixed(1) + 'k';
+              }
+              return '$' + value;
             }
-            return '₹' + value;
           }
+        },
+        y: {
+          ...baseOptions.scales.x, // Swap grid styling for horizontal
         }
       }
-    }
-  }), []);
+    };
+  }, [isDark]);
 
-  const isEmpty = !data || !Array.isArray(data) || data.length === 0;
+  if (isLoading) {
+    return (
+      <GlassCard className="h-full">
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Budget vs Actual</h3>
+        <Skeleton height="300px" borderRadius="var(--radius-md)" />
+      </GlassCard>
+    );
+  }
+
+  if (error) {
+    return (
+      <GlassCard className="h-full">
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Budget vs Actual</h3>
+        <ErrorState message={error} />
+      </GlassCard>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <GlassCard className="h-full">
+        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)' }}>Budget vs Actual</h3>
+        <EmptyState 
+          icon="BarChart2" 
+          title="No Budget Data" 
+          description="Set up budgets to compare them against actual spending." 
+        />
+      </GlassCard>
+    );
+  }
+
+  // Adjust height dynamically based on number of categories to prevent squishing
+  const dynamicHeight = Math.max(300, data.length * 40);
 
   return (
-    <ChartContainer 
-      title="Budget vs Actual" 
-      isLoading={isLoading} 
-      error={error} 
-      isEmpty={isEmpty} 
-      onRetry={onRetry}
-    >
-      {chartData && <Bar data={chartData} options={options} />}
-    </ChartContainer>
+    <GlassCard className="h-full">
+      <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 'var(--spacing-4)', margin: 0 }}>Budget vs Actual</h3>
+      <div style={{ height: `${dynamicHeight}px`, position: 'relative' }}>
+        <Bar data={chartData} options={options} />
+      </div>
+    </GlassCard>
   );
-};
+}
 
 BudgetVsActualChart.propTypes = {
-  data: PropTypes.array,
-  isLoading: PropTypes.bool,
-  error: PropTypes.object,
-  onRetry: PropTypes.func
+  month: PropTypes.number.isRequired,
+  year: PropTypes.number.isRequired,
 };

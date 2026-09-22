@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { GlassCard } from '../ui/GlassCard';
 import { Icon } from '../ui/Icon';
-import { useSettings } from '../../context/SettingsContext';
+import { formatCurrency } from './BalanceHero';
 import './RecentTransactions.css';
 
 // Helper to map category names to icons (in a real app, this might come from DB)
@@ -18,8 +18,6 @@ const getCategoryIcon = (categoryName = '') => {
 };
 
 export function RecentTransactions({ transactions }) {
-  const { formatCurrency } = useSettings();
-
   return (
     <GlassCard padding="normal" className="recent-transactions-card">
       <div className="recent-header">
@@ -46,11 +44,11 @@ export function RecentTransactions({ transactions }) {
                     <Icon name={getCategoryIcon(tx.category_name)} size={18} />
                   </div>
                   <div className="tx-info">
-                    <span className="tx-description">{tx.description || tx.note || tx.category_name || 'No Description'}</span>
+                    <span className="tx-description">{tx.description || tx.category_name}</span>
                     <div className="tx-meta">
-                      <span className="tx-category">{tx.category_name || 'Uncategorized'}</span>
+                      <span className="tx-category">{tx.category_name}</span>
                       <span className="tx-dot">•</span>
-                      <span className="tx-date">{new Date(tx.transaction_date || tx.date).toLocaleDateString()}</span>
+                      <span className="tx-date">{new Date(tx.transaction_date).toLocaleDateString()}</span>
                       {tx.payment_source && (
                         <>
                           <span className="tx-dot">•</span>

@@ -62,8 +62,6 @@
   font-family: inherit;
   font-size: 14px;
   transition: all var(--transition-fast);
-  height: 42px;
-  box-sizing: border-box;
 }
 
 [data-theme="light"] .glass-select,
@@ -79,9 +77,7 @@
 }
 
 .reset-btn {
-  height: 42px;
-  width: 100%;
-  box-sizing: border-box;
+  height: 38px;
 }
 
 /* Chrome, Safari, Edge, Opera: hide inner spin button */
