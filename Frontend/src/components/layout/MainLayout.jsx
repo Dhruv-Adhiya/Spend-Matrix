@@ -13,10 +13,10 @@ export function MainLayout({ children }) {
   return (
     <div className="main-layout">
       <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-      
+
       <div className="main-content-wrapper">
         <Header onMenuClick={toggleSidebar} />
-        
+
         <main className="main-content">
           <div className="content-container">
             {children}

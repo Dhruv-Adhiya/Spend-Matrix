@@ -63,7 +63,7 @@ export const NotificationList = ({ notifications, onMarkRead, onDelete }) => {
                 icon="Check" 
                 onClick={() => onMarkRead(notif.id)} 
                 aria-label="Mark as read"
-                size="small"
+                size={18}
                 variant="ghost"
                 className="mark-read-btn"
               />
@@ -72,7 +72,7 @@ export const NotificationList = ({ notifications, onMarkRead, onDelete }) => {
               icon="Trash2" 
               onClick={() => onDelete(notif.id)} 
               aria-label="Delete notification"
-              size="small"
+              size={18}
               variant="ghost"
               className="delete-notif-btn"
             />

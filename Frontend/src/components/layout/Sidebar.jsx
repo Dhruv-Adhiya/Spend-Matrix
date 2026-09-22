@@ -1,11 +1,22 @@
 import { NavLink } from 'react-router-dom';
+import { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from '../ui/Icon';
 import { useAuth } from '../../context/AuthContext';
 import './Sidebar.css';
 
 export function Sidebar({ isOpen, onClose }) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const sidebarRef = useRef(null);
+  
+  const handleMouseMove = (e) => {
+    if (!sidebarRef.current) return;
+    const rect = sidebarRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    sidebarRef.current.style.setProperty('--mouse-x', `${x}px`);
+    sidebarRef.current.style.setProperty('--mouse-y', `${y}px`);
+  };
   
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: 'Grid' },
@@ -33,7 +44,11 @@ export function Sidebar({ isOpen, onClose }) {
       {/* Mobile overlay */}
       {isOpen && <div className="sidebar-overlay" onClick={onClose}></div>}
       
-      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+      <aside 
+        className={`sidebar ${isOpen ? 'open' : ''}`}
+        ref={sidebarRef}
+        onMouseMove={handleMouseMove}
+      >
         <div className="sidebar-header">
           <Icon name="Activity" size={24} className="sidebar-logo-icon" />
           <span className="sidebar-logo-text">SpendMatrix</span>
@@ -76,21 +91,6 @@ export function Sidebar({ isOpen, onClose }) {
           </nav>
         </div>
 
-        <div className="sidebar-footer">
-          <div className="user-mini-profile">
-            <div className="user-avatar">
-              {user?.full_name?.charAt(0) || 'U'}
-            </div>
-            <div className="user-info">
-              <span className="user-name">{user?.full_name || 'User'}</span>
-              <span className="user-email">{user?.email || ''}</span>
-            </div>
-          </div>
-          <button className="logout-btn" onClick={() => { logout(); onClose(); }}>
-            <Icon name="LogOut" size={18} />
-            <span>Log out</span>
-          </button>
-        </div>
       </aside>
     </>
   );

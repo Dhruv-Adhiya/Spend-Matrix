@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 // Removed lucide-react
 import { IconButton } from '../ui/IconButton';
+import { Icon } from '../ui/Icon';
 import { notificationService } from '../../services/notificationService';
 import toast from 'react-hot-toast';
 import './NotificationBell.css';
@@ -103,7 +104,7 @@ export function NotificationBell() {
                     onClick={(e) => handleMarkAsRead(e, notif.id)}
                     title="Mark as read"
                   >
-                    <Check size={16} />
+                    <Icon name="Check" size={16} />
                   </button>
                 </div>
               ))

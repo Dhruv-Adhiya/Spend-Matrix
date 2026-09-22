@@ -3,6 +3,8 @@
   flex-direction: column;
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-4);
+  position: relative;
+  z-index: 10;
 }
 
 .filters-search-bar {

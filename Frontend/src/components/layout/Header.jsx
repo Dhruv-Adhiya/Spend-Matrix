@@ -1,13 +1,26 @@
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
+import { useRef } from 'react';
 import { IconButton } from '../ui/IconButton';
 import { useTheme } from '../../context/ThemeContext';
 import { Icon } from '../ui/Icon';
 import { NotificationBell } from './NotificationBell';
+import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
 export function Header({ onMenuClick }) {
   const location = useLocation();
+  const { logout } = useAuth();
+  const headerRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!headerRef.current) return;
+    const rect = headerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    headerRef.current.style.setProperty('--mouse-x', `${x}px`);
+    headerRef.current.style.setProperty('--mouse-y', `${y}px`);
+  };
 
   // Simple title mapping based on route
   const getPageTitle = (pathname) => {
@@ -20,7 +33,11 @@ export function Header({ onMenuClick }) {
   };
 
   return (
-    <header className="main-header">
+    <header 
+      className="main-header"
+      ref={headerRef}
+      onMouseMove={handleMouseMove}
+    >
       <div className="header-left">
         <button className="mobile-menu-btn" onClick={onMenuClick} aria-label="Open menu">
           <Icon name="Menu" size={24} />
@@ -30,6 +47,12 @@ export function Header({ onMenuClick }) {
 
       <div className="header-right">
         <NotificationBell />
+        <IconButton 
+          icon="LogOut" 
+          aria-label="Log out" 
+          onClick={logout} 
+          title="Log out"
+        />
       </div>
     </header>
   );
