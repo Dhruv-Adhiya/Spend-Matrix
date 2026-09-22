@@ -1,0 +1,27 @@
+.admin-layout-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.admin-banner {
+  background-color: rgba(245, 158, 11, 0.1); /* Amber tint */
+  color: var(--color-accent-warning);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+  z-index: var(--z-sticky);
+}
+
+/* We also apply a subtle top border to the main header to reinforce the mode */
+.admin-layout-wrapper .main-header {
+  border-top: 2px solid var(--color-accent-warning);
+}
