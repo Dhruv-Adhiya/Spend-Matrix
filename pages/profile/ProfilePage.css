@@ -1,0 +1,105 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 3rem;
+  min-height: calc(100vh - 120px);
+}
+
+.profile-page.center {
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.profile-content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.profile-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.profile-overview-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-income));
+  color: white;
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.profile-name {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.profile-email {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.section-title {
+  margin: 0 0 1.5rem 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .profile-content-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
