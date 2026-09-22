@@ -1,0 +1,50 @@
+.notifications-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  min-height: calc(100vh - 120px);
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.notifications-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications-center-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.page-info {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .notifications-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

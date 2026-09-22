@@ -1,0 +1,122 @@
+/* Shared styles for all admin tables */
+
+.admin-table-container {
+  width: 100%;
+}
+
+.admin-table-responsive {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border-glass);
+}
+
+.admin-table th {
+  font-family: var(--font-family-heading);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.admin-table td {
+  color: var(--color-text-primary);
+  font-size: 0.9375rem;
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.admin-table tbody tr:hover {
+  background-color: var(--color-bg-glass);
+}
+
+.admin-actions-col {
+  text-align: right;
+  width: 120px;
+}
+
+.admin-action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* Mobile View Styles for Admin */
+.admin-mobile-view {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-mobile-card {
+  padding: 1.25rem;
+}
+
+.admin-mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border-glass);
+}
+
+.admin-mobile-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-mobile-title-main {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.admin-mobile-title-sub {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.admin-mobile-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-mobile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9375rem;
+}
+
+.admin-mobile-label {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .admin-desktop-view {
+    display: none;
+  }
+  .admin-mobile-view {
+    display: flex;
+  }
+}
